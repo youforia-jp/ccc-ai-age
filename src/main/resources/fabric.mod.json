@@ -1,0 +1,49 @@
+{
+	"schemaVersion": 1,
+	"id": "ccc-ai-age",
+	"version": "${version}",
+	"name": "CC:C AI Age",
+	"description": "Integrates CC: Tweaked computers with Create's kinetic network via an AI-powered peripheral (Kinetic AI Core), bridging Lua scripting with a local Ollama LLM backend.",
+	"authors": [
+		"juanp"
+	],
+	"contact": {
+		"homepage": "https://github.com/juanp/ccc-ai-age",
+		"sources": "https://github.com/juanp/ccc-ai-age"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/ccc-ai-age/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"net.ccc_ai_age.CCCAIAge"
+		],
+		"client": [
+			"net.ccc_ai_age.client.CCCAIAgeClient"
+		],
+		"fabric-datagen": [
+			"net.ccc_ai_age.client.CCCAIAgeDataGenerator"
+		],
+		"computercraft": [
+			"net.ccc_ai_age.integration.CCTweakedPlugin"
+		]
+	},
+	"mixins": [
+		"ccc-ai-age.mixins.json",
+		{
+			"config": "ccc-ai-age.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.19.3",
+		"minecraft": "~1.20.1",
+		"java": ">=17",
+		"fabric-api": "*",
+		"computercraft": ">=1.109.2"
+	},
+	"suggests": {
+		"create": "*",
+		"cccbridge": "*"
+	}
+}

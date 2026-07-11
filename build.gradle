@@ -1,0 +1,125 @@
+plugins {
+	id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
+	id 'maven-publish'
+}
+
+version = project.mod_version
+group = project.maven_group
+
+repositories {
+	// SquidDev Maven — official repository for CC: Tweaked
+	maven {
+		url "https://maven.squiddev.cc"
+		content {
+			includeGroup "cc.tweaked"
+		}
+	}
+	// CurseMaven — used for Create Fabric and CC:C Bridge (if 3rd-party sharing is enabled)
+	maven {
+		url "https://www.cursemaven.com"
+		content {
+			includeGroup "curse.maven"
+		}
+	}
+	// Local flat-dir repo — fallback for CC:C Bridge if CurseMaven is unavailable.
+	// Place the CC:C Bridge jar inside the project's libs/ folder and uncomment this:
+	// flatDir { dirs 'libs' }
+}
+
+loom {
+	splitEnvironmentSourceSets()
+
+	mods {
+		"ccc-ai-age" {
+			sourceSet sourceSets.main
+			sourceSet sourceSets.client
+		}
+	}
+}
+
+fabricApi {
+	configureDataGeneration {
+		client = true
+	}
+}
+
+dependencies {
+	// To change the versions see the gradle.properties file
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+	// Fabric API
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+
+	// -------------------------------------------------------------------------
+	// CC: Tweaked 1.116.1 — compile-only so we link against the API without
+	// bundling the mod. At runtime the player provides CC:T themselves.
+	// -------------------------------------------------------------------------
+	modCompileOnly "cc.tweaked:cc-tweaked-1.20.1-fabric-api:${project.cct_version}"
+
+	// -------------------------------------------------------------------------
+	// Create Fabric 0.5.1-j — compile-only for accessing Create block/sound
+	// constants. Player must have Create installed at runtime.
+	// -------------------------------------------------------------------------
+	modCompileOnly "curse.maven:create-fabric-624165:${project.create_file_id}"
+
+	// -------------------------------------------------------------------------
+	// CC:C Bridge 1.70 — compile-only for accessing the Bridge API if needed.
+	//
+	// Option A (CurseMaven — requires 3rd-party sharing to be enabled by author):
+	modCompileOnly "curse.maven:ccc-bridge-656214:${project.cccbridge_file_id}"
+	//
+	// Option B (local jar — download from Modrinth/CurseForge and place in libs/):
+	// modCompileOnly fileTree(dir: 'libs', include: ['*cccbridge*.jar'])
+	// -------------------------------------------------------------------------
+}
+
+processResources {
+	def version = project.version
+	inputs.property "version", version
+
+	filesMatching("fabric.mod.json") {
+		expand "version": version
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 17
+}
+
+java {
+	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
+	// if it is present.
+	// If you remove this line, sources will not be generated.
+	withSourcesJar()
+
+	sourceCompatibility = JavaVersion.VERSION_17
+	targetCompatibility = JavaVersion.VERSION_17
+}
+
+jar {
+	def projectName = project.name
+	inputs.property "projectName", projectName
+
+	from("LICENSE") {
+		rename { "${it}_$projectName"}
+	}
+}
+
+// configure the maven publication
+publishing {
+	publications {
+		create("mavenJava", MavenPublication) {
+			from components.java
+		}
+	}
+
+	// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
+	repositories {
+		// Add repositories to publish to here.
+		// Notice: This block does NOT have the same function as the block in the top level.
+		// The repositories here will be used for publishing your artifact, not for
+		// retrieving dependencies.
+	}
+}
