@@ -1,16 +1,17 @@
 # CC:C AI Age
 
-> **Build `0.3`** — Phase 1, 2, 3, & 4 complete: Kinetic AI Core block + CC:T peripheral + Ollama Link + Create Integration
+> **Build `0.31`** — Phase 1, 2, 3, & 4 complete: Kinetic AI Core block + CC:T peripheral + Ollama Link + Create Integration
 
 A Minecraft 1.20.1 Fabric mod that bridges **CC: Tweaked** computers with **Create**'s kinetic network through an AI-powered peripheral, connecting Lua scripting with a local [Ollama](https://ollama.com) LLM backend.
 
 ---
 
-## ✨ Features (v0.3)
+## ✨ Features (v0.31)
 
 | Feature | Status | Description |
 |---|---|---|
-| **Kinetic AI Core** block | ✅ Implemented | Brass-tier block (requires pickaxe, metal sounds) added to Redstone Creative Tab. |
+| **Custom Creative Tab** | ✅ Implemented | Mod items are available under the CC:C AI Age creative tab. |
+| **Kinetic AI Core** block | ✅ Implemented | Brass-tier block (requires pickaxe, metal sounds). |
 | **Block Entity Registration** | ✅ Implemented | Linked to `KineticAICoreBlockEntity` type. |
 | **CC:T Peripheral Discovery** | ✅ Implemented | Discovered adjacent to computers using `peripheral.find("ai_core")`. |
 | **Ollama Async Streaming** | ✅ Implemented | Calls local Ollama `http://localhost:11434/api/generate` asynchronously and streams NDJSON responses. |

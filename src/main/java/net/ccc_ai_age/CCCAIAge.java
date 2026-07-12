@@ -34,6 +34,9 @@ public class CCCAIAge implements ModInitializer {
 
 		// Register block entity types (must come after blocks are registered)
 		ModBlockEntities.register();
+		
+		// Register creative mode tabs
+		ModItemGroups.register();
 
 		LOGGER.info("[CC:C AI Age] Initialization complete.");
 	}
