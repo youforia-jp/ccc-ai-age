@@ -1,6 +1,8 @@
 {
   "replace": false,
   "values": [
-    "ccc-ai-age:kinetic_ai_core"
+    "ccc-ai-age:basic_kinetic_ai_core",
+    "ccc-ai-age:advanced_kinetic_ai_core",
+    "ccc-ai-age:quantum_kinetic_ai_core"
   ]
 }

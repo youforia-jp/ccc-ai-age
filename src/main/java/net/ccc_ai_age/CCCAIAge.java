@@ -34,6 +34,12 @@ public class CCCAIAge implements ModInitializer {
 
 		// Register block entity types (must come after blocks are registered)
 		ModBlockEntities.register();
+
+		// Register the KineticAICoreBlockEntity's peripheral wrapper as an IPeripheral provider (v0.34)
+		dan200.computercraft.api.peripheral.PeripheralLookup.get().registerForBlockEntity(
+				(blockEntity, direction) -> blockEntity.getPeripheral(),
+				ModBlockEntities.KINETIC_AI_CORE
+		);
 		
 		// Register creative mode tabs
 		ModItemGroups.register();
