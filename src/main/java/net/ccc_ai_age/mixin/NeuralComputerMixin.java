@@ -1,8 +1,8 @@
 package net.ccc_ai_age.mixin;
 
+import dan200.computercraft.shared.computer.blocks.ComputerBlockEntity;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.core.computer.ComputerSide;
-import dan200.computercraft.shared.turtle.blocks.TurtleBlockEntity;
 import net.ccc_ai_age.api.AITier;
 import net.ccc_ai_age.blockentity.KineticAICoreBlockEntity;
 import net.ccc_ai_age.integration.NeuralComputerAccess;
@@ -15,8 +15,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(TurtleBlockEntity.class)
-public abstract class NeuralTurtleMixin extends BlockEntity implements NeuralComputerAccess {
+@Mixin(ComputerBlockEntity.class)
+public abstract class NeuralComputerMixin extends BlockEntity implements NeuralComputerAccess {
 
 	@Unique
 	private boolean neuralAI = false;
@@ -24,7 +24,7 @@ public abstract class NeuralTurtleMixin extends BlockEntity implements NeuralCom
 	@Unique
 	private String neuralTier = "quantum";
 
-	protected NeuralTurtleMixin(net.minecraft.block.entity.BlockEntityType<?> type, net.minecraft.util.math.BlockPos pos, net.minecraft.block.BlockState state) {
+	protected NeuralComputerMixin(net.minecraft.block.entity.BlockEntityType<?> type, net.minecraft.util.math.BlockPos pos, net.minecraft.block.BlockState state) {
 		super(type, pos, state);
 	}
 

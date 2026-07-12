@@ -1,5 +1,6 @@
 -- Interactive Exception-Driven AI Recovery Matrix for Turtles
 local core = peripheral.find("ai_core")
+local selectedModel = "qwen3.5:9b" -- Global selection cache
 
 -- High-visibility industrial panic flashing routine
 local function flashPanicAlarm()
@@ -59,6 +60,26 @@ local function getSurroundingsSummary()
     return table.concat(s, ", ")
 end
 
+-- Aggressive AI Response Sanitizer Engine
+local function cleanAIResponse(buffer)
+    -- 1. Extract markdown code blocks with or without 'lua' identifier (case-insensitive)
+    local code = buffer:match("```[lL][uU][aA]%s*(.-)%s*```")
+    if not code then
+        code = buffer:match("```%s*(.-)%s*```")
+    end
+    if not code then
+        code = buffer
+    end
+    
+    -- 2. Strip raw backticks
+    code = code:gsub("`", "")
+    
+    -- 3. Strip trailing/leading carriage returns
+    code = code:gsub("\r", "")
+    
+    return code
+end
+
 -- Main recovery processor
 local function triggerAIRecovery(predicament)
     if not core then
@@ -80,7 +101,7 @@ local function triggerAIRecovery(predicament)
 
     -- Stream recovery code
     print("\nSending telemetry context...")
-    local ok, reqId = pcall(core.streamTelemetry, prompt, "qwen3.5:4b")
+    local ok, reqId = pcall(core.streamTelemetry, prompt, selectedModel)
     if not ok then
         print("[Error]: Failed to contact core: " .. tostring(reqId))
         return false
@@ -99,8 +120,8 @@ local function triggerAIRecovery(predicament)
         end
     end
 
-    -- Extract Lua code block
-    local code = buffer:match("```lua%s*(.-)%s*```") or buffer:match("```%s*(.-)%s*```") or buffer
+    -- Clean and compile recovery logic
+    local code = cleanAIResponse(buffer)
 
     print("\n--- Executing Recovery Macro ---")
     local fn, err = load(code, "recovery_macro", "t", _ENV)
@@ -151,6 +172,20 @@ local function safeMove(direction)
 end
 
 local function safeDig(direction)
+    -- Bypass "Digging Air" false-positive panics
+    local blockPresent = false
+    if direction == "forward" then
+        blockPresent = turtle.detect()
+    elseif direction == "up" then
+        blockPresent = turtle.detectUp()
+    elseif direction == "down" then
+        blockPresent = turtle.detectDown()
+    end
+
+    if not blockPresent then
+        return true -- Instantly successful if empty air
+    end
+
     local dug = false
     if direction == "forward" then
         dug = turtle.dig()
@@ -200,11 +235,55 @@ end
 
 -- Main task loop demo
 local function main()
+    -- Non-Neural hardware check guard rail
+    if not core then
+        term.setBackgroundColor(colors.black)
+        term.setTextColor(colors.red)
+        term.clear()
+        term.setCursorPos(1, 1)
+        print("=========================================")
+        print("      SYSTEM CONFIGURATION ERROR         ")
+        print("=========================================")
+        print("")
+        print("No linked Kinetic AI Core was detected.")
+        print("Please upgrade this hardware internally")
+        print("by crafting it with a Kinetic AI Core")
+        print("block to install the Neural AI chip.")
+        print("")
+        print("Shutting down...")
+        sleep(5)
+        return
+    end
+
+    -- Core Model Profile Chooser
+    term.clear()
+    term.setCursorPos(1, 1)
+    print("=========================================")
+    print("      KINETIC AI RECOVERY ENGINE         ")
+    print("=========================================")
+    print("")
+    print("Select your target GPU performance profile:")
+    print("1) qwen:0.5b   (Low VRAM / Basic Baseline)")
+    print("2) qwen3.5:4b  (3GB VRAM / Advanced Default)")
+    print("3) qwen3:8b    (5GB VRAM / Intermediate Bridge)")
+    print("4) qwen3.5:9b  (7GB VRAM / Quantum Flagship)")
+    print("5) qwen2.5:14b (12GB VRAM / Quantum High-End)")
+    print("")
+    write("Choose profile (1-5) [Default 4]: ")
+    local input = read()
+    if input == "1" then selectedModel = "qwen:0.5b"
+    elseif input == "2" then selectedModel = "qwen3.5:4b"
+    elseif input == "3" then selectedModel = "qwen3:8b"
+    elseif input == "5" then selectedModel = "qwen2.5:14b"
+    else selectedModel = "qwen3.5:9b"
+    end
+    
     term.clear()
     term.setCursorPos(1, 1)
     print("=========================================")
     print("      KINETIC TURTLE MINING NODE         ")
     print("=========================================")
+    print("Profile: " .. selectedModel)
     print("Status: Working standard mining route...")
     print("Press Ctrl+T to terminate.")
     print("-----------------------------------------")
