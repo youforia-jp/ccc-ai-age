@@ -19,6 +19,9 @@ import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import oshi.SystemInfo;
+import oshi.hardware.GraphicsCard;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -328,18 +331,87 @@ public class KineticAICoreBlockEntity extends BlockEntity {
 				}
 			}
 
+			// 1. DYNAMIC VRAM LOOKUP (v0.35)
+			long vramBytes = 0;
+			try {
+				oshi.SystemInfo si = new oshi.SystemInfo();
+				vramBytes = si.getHardware().getGraphicsCards().stream()
+						.mapToLong(oshi.hardware.GraphicsCard::getVRam)
+						.sum();
+			} catch (Throwable t) {
+				// Fallback if oshi fails
+			}
+			long vramGb = Math.round(vramBytes / (1024.0 * 1024.0 * 1024.0));
+
+			// 2. THE UPDATED MODEL SELECTION MATRIX (v0.35)
+			String normModel = (model == null) ? "" : model.trim().toLowerCase();
 			String selectedModel;
-			String finalPrompt;
+			long modelVramGb = 0;
+			String recommendation = null;
 
 			if (tier == AITier.BASIC) {
 				selectedModel = "qwen:0.5b";
+				modelVramGb = 1;
+			} else if (tier == AITier.ADVANCED) {
+				if (normModel.isEmpty()) {
+					selectedModel = "qwen3.5:4b";
+				} else if (normModel.equals("qwen3.5:4b") || normModel.equals("qwen:0.5b")) {
+					selectedModel = normModel;
+				} else {
+					throw new LuaException("Model '" + model + "' is not authorized for Advanced Tier. Authorized models: 'qwen3.5:4b', 'qwen:0.5b'.");
+				}
+				
+				if (selectedModel.equals("qwen:0.5b")) {
+					modelVramGb = 1;
+				} else {
+					modelVramGb = 3;
+					recommendation = "qwen:0.5b";
+				}
+			} else { // QUANTUM TIER
+				if (normModel.isEmpty()) {
+					selectedModel = "qwen3.5:9b";
+				} else if (normModel.equals("qwen3.5:9b") || normModel.equals("qwen3.5:4b") || normModel.equals("qwen:0.5b") || normModel.equals("qwen2.5:14b") || normModel.equals("llama3:70b")) {
+					selectedModel = normModel;
+				} else {
+					throw new LuaException("Model '" + model + "' is not authorized for Quantum Tier. Authorized models: 'qwen3.5:9b', 'qwen2.5:14b', 'llama3:70b', 'qwen3.5:4b', 'qwen:0.5b'.");
+				}
+
+				if (selectedModel.equals("qwen:0.5b")) {
+					modelVramGb = 1;
+				} else if (selectedModel.equals("qwen3.5:4b")) {
+					modelVramGb = 3;
+					recommendation = "qwen:0.5b";
+				} else if (selectedModel.equals("qwen3.5:9b")) {
+					modelVramGb = 7;
+					recommendation = "qwen3.5:4b";
+				} else if (selectedModel.equals("qwen2.5:14b")) {
+					modelVramGb = 12;
+					recommendation = "qwen3.5:9b";
+				} else { // llama3:70b
+					modelVramGb = 48;
+					recommendation = "qwen2.5:14b";
+				}
+			}
+
+			// 4. SYSTEM PROMPTS (v0.35)
+			String finalPrompt;
+			if (selectedModel.equals("qwen:0.5b")) {
 				finalPrompt = "You are a primitive, low-powered computational matrix. Keep responses incredibly simple and short: " + prompt;
 			} else {
-				selectedModel = (model != null && !model.trim().isEmpty()) ? model.trim() : "llama3";
 				finalPrompt = prompt;
 			}
 
 			String requestId = UUID.randomUUID().toString().substring(0, 8);
+
+			// 3. SYSTEM RECOMMENDATION INJECTION (v0.35)
+			if (vramGb > 0 && (vramGb < modelVramGb || (vramGb - modelVramGb) <= 2)) {
+				String recText = (recommendation != null) ? "'" + recommendation + "'" : "a smaller model";
+				String warningMessage = String.format(
+						"[Hardware Note: Detected %dGB VRAM. Running '%s' requires ~%dGB. If you experience low frame rates with shaders active, consider switching to %s.]\n\n",
+						vramGb, selectedModel, modelVramGb, recText
+				);
+				computer.queueEvent("ai_token", requestId, warningMessage, false);
+			}
 
 			// Build Ollama JSON POST payload
 			JsonObject payload = new JsonObject();
