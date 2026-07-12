@@ -333,13 +333,24 @@ public class KineticAICoreBlockEntity extends BlockEntity {
 				}
 			}
 
-			// 1. DYNAMIC VRAM LOOKUP (v0.35)
+			// 1. DYNAMIC VRAM LOOKUP (v0.35, v0.36 override logic)
 			long vramBytes = 0;
 			try {
 				oshi.SystemInfo si = new oshi.SystemInfo();
-				vramBytes = si.getHardware().getGraphicsCards().stream()
-						.mapToLong(oshi.hardware.GraphicsCard::getVRam)
-						.sum();
+				for (oshi.hardware.GraphicsCard card : si.getHardware().getGraphicsCards()) {
+					long cardVRam = card.getVRam();
+					String cardName = card.getName() == null ? "" : card.getName().toLowerCase();
+					
+					// Fix the Windows 4GB VRAM Truncation Reporting (v0.36)
+					if (cardVRam == 4294967295L || 
+					    ((cardName.contains("super") || cardName.contains("ti") || cardName.contains("rtx") || 
+					      cardName.contains("rx") || cardName.contains("2060") || cardName.contains("3060") || 
+					      cardName.contains("4060")) && cardVRam < 8589934592L)) {
+						cardVRam = Math.max(cardVRam, 8589934592L);
+					}
+					
+					vramBytes += cardVRam;
+				}
 			} catch (Throwable t) {
 				// Fallback if oshi fails
 			}
