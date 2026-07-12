@@ -7,7 +7,7 @@ import dan200.computercraft.shared.turtle.blocks.TurtleBlockEntity;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import net.ccc_ai_age.api.AITier;
 import net.ccc_ai_age.blockentity.KineticAICoreBlockEntity;
-import net.ccc_ai_age.integration.NeuralTurtleAccess;
+import net.ccc_ai_age.integration.NeuralComputerAccess;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -26,9 +26,16 @@ public class TurtleBrainMixin {
 
 	@Inject(method = "updatePeripherals", at = @At("TAIL"))
 	private void onUpdatePeripherals(ServerComputer computer, CallbackInfo ci) {
-		if (owner instanceof NeuralTurtleAccess && ((NeuralTurtleAccess) owner).isNeuralAI()) {
+		if (owner instanceof NeuralComputerAccess && ((NeuralComputerAccess) owner).isNeuralAI()) {
 			if (neuralPeripheral == null) {
-				neuralPeripheral = new KineticAICoreBlockEntity.KineticAICorePeripheral(AITier.QUANTUM);
+				String tierName = ((NeuralComputerAccess) owner).getNeuralTier();
+				AITier tierVal;
+				try {
+					tierVal = AITier.valueOf(tierName.toUpperCase());
+				} catch (Exception e) {
+					tierVal = AITier.QUANTUM;
+				}
+				neuralPeripheral = new KineticAICoreBlockEntity.KineticAICorePeripheral(tierVal);
 			}
 			// Inject virtual peripheral on BOTTOM side to not override LEFT/RIGHT physical slots
 			computer.setPeripheral(ComputerSide.BOTTOM, neuralPeripheral);
