@@ -10,7 +10,7 @@ A Minecraft 1.20.1 Fabric mod that bridges **CC: Tweaked** computers with **Crea
 
 | Feature | Status | Description |
 |---|---|---|
-| **Custom Creative Tab** | ✅ Implemented | Mod items are available under the CC:C AI Age creative tab. |
+| **Custom Creative Tab** | ✅ Implemented | Mod items are available under the CC:C AI Age creative tab with the exception of neural items (must be crafted by combining AI chip with Computer / Turtle). |
 | **3-Tier AI Progression** | ✅ Implemented | Progression system featuring Basic (uses `qwen:0.5b`), Advanced (default configurations), and Quantum cores. |
 | **Decoupled Kinetic Network** | ✅ Implemented | Blocks are self-powered, resolving previous kinetic constraints and RPM stress requirements for a clean architecture. |
 | **Neural Hardware Upgrades** | ✅ Implemented | Upgrades standard computers/turtles with any AI Core block in a crafting grid, writing `NeuralAI` and `NeuralTier` NBT tags. |
