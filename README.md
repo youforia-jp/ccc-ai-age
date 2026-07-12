@@ -81,7 +81,7 @@ Output jar: `build/libs/ccc-ai-age-1.0.0.jar`
 
 ## 🧪 Testing the Neural Upgrade (in-game)
 
-1. Combine an **Advanced Turtle** with a **Quantum Kinetic AI Core** in a crafting table to produce a **Neural Advanced Turtle**.
+1. Combine an **Advanced Turtle** with a **Any Kinetic AI Core** in a crafting table to produce a **Neural Advanced Turtle**.
 2. Place the Neural Advanced Turtle down.
 3. Open its terminal. The `/ai/` ROM directory is automatically mounted.
 4. Run the test script:
