@@ -44,8 +44,8 @@ public class OllamaSetupHandler {
 					}
 				}
 
-				CCCAIAge.LOGGER.info("[CC:C AI Age] Ollama is online. Ensuring all 4 model tiers are pulled...");
-				String[] targetModels = {"qwen:0.5b", "qwen3.5:4b", "qwen3.5:9b", "qwen2.5:14b"};
+				CCCAIAge.LOGGER.info("[CC:C AI Age] Ollama is online. Ensuring all 5 model tiers are pulled...");
+				String[] targetModels = {"qwen:0.5b", "qwen3.5:4b", "qwen3:8b", "qwen3.5:9b", "qwen2.5:14b"};
 				for (String modelName : targetModels) {
 					CompletableFuture.runAsync(() -> {
 						pullModel(modelName);

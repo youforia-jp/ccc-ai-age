@@ -366,10 +366,10 @@ public class KineticAICoreBlockEntity extends BlockEntity {
 			} else { // QUANTUM TIER
 				if (normModel.isEmpty()) {
 					selectedModel = "qwen3.5:9b";
-				} else if (normModel.equals("qwen3.5:9b") || normModel.equals("qwen3.5:4b") || normModel.equals("qwen:0.5b") || normModel.equals("qwen2.5:14b") || normModel.equals("llama3:70b")) {
+				} else if (normModel.equals("qwen3.5:9b") || normModel.equals("qwen2.5:14b") || normModel.equals("qwen3:8b") || normModel.equals("qwen3.5:4b") || normModel.equals("qwen:0.5b")) {
 					selectedModel = normModel;
 				} else {
-					throw new LuaException("Model '" + model + "' is not authorized for Quantum Tier. Authorized models: 'qwen3.5:9b', 'qwen2.5:14b', 'llama3:70b', 'qwen3.5:4b', 'qwen:0.5b'.");
+					throw new LuaException("Model '" + model + "' is not authorized for Quantum Tier. Authorized models: 'qwen3.5:9b', 'qwen2.5:14b', 'qwen3:8b', 'qwen3.5:4b', 'qwen:0.5b'.");
 				}
 
 				if (selectedModel.equals("qwen:0.5b")) {
@@ -377,15 +377,15 @@ public class KineticAICoreBlockEntity extends BlockEntity {
 				} else if (selectedModel.equals("qwen3.5:4b")) {
 					modelVramGb = 3;
 					recommendation = "qwen:0.5b";
+				} else if (selectedModel.equals("qwen3:8b")) {
+					modelVramGb = 5;
+					recommendation = "qwen3.5:4b";
 				} else if (selectedModel.equals("qwen3.5:9b")) {
 					modelVramGb = 7;
-					recommendation = "qwen3.5:4b";
-				} else if (selectedModel.equals("qwen2.5:14b")) {
+					recommendation = "qwen3:8b";
+				} else { // qwen2.5:14b
 					modelVramGb = 12;
 					recommendation = "qwen3.5:9b";
-				} else { // llama3:70b
-					modelVramGb = 48;
-					recommendation = "qwen2.5:14b";
 				}
 			}
 
