@@ -280,64 +280,29 @@ public class KineticAICoreBlockEntity extends BlockEntity {
 		 */
 		@LuaFunction
 		public final Map<String, Object> getKineticData() {
-			float speed, stress, capacity;
-			boolean isPowered;
-			if (blockEntity != null) {
-				KineticData data = blockEntity.getAdjacentKineticData();
-				speed = data.speed;
-				stress = data.stress;
-				capacity = data.capacity;
-				if (tier == AITier.QUANTUM) {
-					isPowered = true;
-				} else if (tier == AITier.ADVANCED) {
-					isPowered = speed >= 16.0f;
-				} else {
-					isPowered = speed >= 32.0f;
-				}
-			} else {
-				// Turtle upgrade fallback - always powered and fully functional!
-				speed = 64.0f;
-				stress = 0.0f;
-				capacity = 256.0f;
-				isPowered = true;
-			}
-
 			Map<String, Object> map = new HashMap<>();
-			map.put("speed", speed);
-			map.put("stress", stress);
-			map.put("capacity", capacity);
-			map.put("stressPercent", capacity > 0.0f ? (stress / capacity) * 100.0f : 0.0f);
-			map.put("isPowered", isPowered);
-			map.put("isOverstressed", capacity > 0.0f && stress >= capacity);
+			map.put("speed", 64.0f);
+			map.put("stress", 0.0f);
+			map.put("capacity", 256.0f);
+			map.put("stressPercent", 0.0f);
+			map.put("isPowered", true);
+			map.put("isOverstressed", false);
 			return map;
 		}
 
 		/**
 		 * Triggers an asynchronous generation request to a local Ollama server.
-		 * Requires adjacent rotational force to run (minimum 16 RPM).
 		 *
 		 * @param computer injected computer access
 		 * @param prompt the prompt text to generate from
 		 * @param modelOpt the model to use
 		 * @return a unique 8-character request ID
-		 * @throws LuaException if unpowered or the network is overstressed
+		 * @throws LuaException if any Lua exception occurs
 		 */
 		@LuaFunction
 		public final String streamTelemetry(IComputerAccess computer, String prompt, Optional<String> modelOpt) throws LuaException {
 			String model = modelOpt.orElse(null);
 			AITier tier = this.tier;
-			
-			// Enforce tier-based kinetic power requirements
-			if (blockEntity != null && tier != AITier.QUANTUM) {
-				KineticData data = blockEntity.getAdjacentKineticData();
-				float requiredSpeed = (tier == AITier.ADVANCED) ? 16.0f : 32.0f;
-				if (data.speed < requiredSpeed) {
-					throw new LuaException(String.format("Kinetic AI Core (%s) is unpowered. Rotational force (minimum %.0f RPM) required on an adjacent block.", tier.name(), requiredSpeed));
-				}
-				if (data.capacity > 0.0f && data.stress >= data.capacity) {
-					throw new LuaException("Kinetic AI Core has stalled due to adjacent kinetic network overstress.");
-				}
-			}
 
 			// 1. DYNAMIC VRAM LOOKUP (v0.35, v0.36 override logic)
 			long vramBytes = 0;
