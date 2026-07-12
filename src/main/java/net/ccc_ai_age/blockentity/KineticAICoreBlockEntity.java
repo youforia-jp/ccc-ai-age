@@ -36,6 +36,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -316,7 +317,8 @@ public class KineticAICoreBlockEntity extends BlockEntity {
 		 * @throws LuaException if unpowered or the network is overstressed
 		 */
 		@LuaFunction
-		public final String streamTelemetry(IComputerAccess computer, String prompt, @Nullable String model) throws LuaException {
+		public final String streamTelemetry(IComputerAccess computer, String prompt, Optional<String> modelOpt) throws LuaException {
+			String model = modelOpt.orElse(null);
 			AITier tier = blockEntity.getTier();
 			KineticData data = blockEntity.getAdjacentKineticData();
 			
