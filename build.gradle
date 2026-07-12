@@ -63,10 +63,10 @@ dependencies {
 	modCompileOnly "cc.tweaked:cc-tweaked-1.20.1-fabric-api:${project.cct_version}"
 
 	// -------------------------------------------------------------------------
-	// Create Fabric 0.5.1-j — compile-only for accessing Create block/sound
-	// constants. Player must have Create installed at runtime.
+	// Create Fabric 0.5.1-j-patch3 — resolved via Modrinth Maven to automatically
+	// pull in transitive dependencies (like Porting Lib, Flywheel, etc.)
 	// -------------------------------------------------------------------------
-	modCompileOnly "curse.maven:create-fabric-624165:${project.create_file_id}"
+	modImplementation "maven.modrinth:create-fabric:7Ub71nPb"
 
 	// -------------------------------------------------------------------------
 	// CC:C Bridge 1.7.0 Fabric — resolved via Modrinth Maven

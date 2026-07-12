@@ -5,6 +5,7 @@ import net.ccc_ai_age.ModBlockEntities;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
@@ -20,12 +21,15 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -35,8 +39,8 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Block entity for the Kinetic AI Core.
  *
- * <p>Manages the peripheral lifecycle and runs asynchronous streaming requests
- * to a local Ollama LLM endpoint.
+ * <p>Manages the peripheral lifecycle, tracks connected computers, and integrates
+ * with adjacent Create mod networks using reflection to extract speed and stress data.
  */
 public class KineticAICoreBlockEntity extends BlockEntity {
 
@@ -71,10 +75,132 @@ public class KineticAICoreBlockEntity extends BlockEntity {
 		attachedComputers.clear();
 	}
 
+	// =========================================================================
+	// Create Mod Kinetic Reflection Helpers
+	// =========================================================================
+
+	/**
+	 * Helper class to hold resolved kinetic data.
+	 */
+	public static class KineticData {
+		public float speed = 0.0f;
+		public float stress = 0.0f;
+		public float capacity = 0.0f;
+		public boolean hasNetwork = false;
+	}
+
+	/**
+	 * Scans adjacent blocks for Create's KineticBlockEntity and extracts speed and network stress metrics.
+	 * Using reflection avoids direct compile-time class dependencies on Create/Porting-Lib.
+	 *
+	 * @return a {@link KineticData} structure containing the highest speed and network capacity found
+	 */
+	public KineticData getAdjacentKineticData() {
+		KineticData data = new KineticData();
+		if (this.world == null) return data;
+
+		for (net.minecraft.util.math.Direction dir : net.minecraft.util.math.Direction.values()) {
+			net.minecraft.util.math.BlockPos adjacentPos = this.pos.offset(dir);
+			net.minecraft.block.entity.BlockEntity adjacentBe = this.world.getBlockEntity(adjacentPos);
+			if (adjacentBe == null) continue;
+
+			if (isKineticBlockEntity(adjacentBe)) {
+				float speed = Math.abs(getSpeed(adjacentBe));
+				// Track the fastest rotating adjacent source
+				if (speed > data.speed) {
+					data.speed = speed;
+				}
+
+				Object network = getNetwork(adjacentBe);
+				if (network != null) {
+					data.hasNetwork = true;
+					float capacity = getNetworkCapacity(network);
+					float stress = getNetworkStress(network);
+					// Track the network with the largest capacity
+					if (capacity > data.capacity) {
+						data.capacity = capacity;
+						data.stress = stress;
+					}
+				}
+			}
+		}
+		return data;
+	}
+
+	private static boolean isKineticBlockEntity(net.minecraft.block.entity.BlockEntity be) {
+		Class<?> clazz = be.getClass();
+		while (clazz != null && clazz != Object.class) {
+			if (clazz.getName().equals("com.simibubi.create.content.kinetics.base.KineticBlockEntity")) {
+				return true;
+			}
+			clazz = clazz.getSuperclass();
+		}
+		return false;
+	}
+
+	private static float getSpeed(net.minecraft.block.entity.BlockEntity be) {
+		try {
+			Method method = be.getClass().getMethod("getSpeed");
+			return ((Number) method.invoke(be)).floatValue();
+		} catch (Exception e) {
+			return 0.0f;
+		}
+	}
+
+	private static Object getNetwork(net.minecraft.block.entity.BlockEntity be) {
+		try {
+			Method method = be.getClass().getMethod("getOrCreateNetwork");
+			return method.invoke(be);
+		} catch (Exception e) {
+			try {
+				Method method = be.getClass().getMethod("getNetwork");
+				return method.invoke(be);
+			} catch (Exception ex) {
+				return null;
+			}
+		}
+	}
+
+	private static float getNetworkCapacity(Object network) {
+		if (network == null) return 0.0f;
+		// Try getCapacity() getter method first, fall back to public capacity field
+		try {
+			Method method = network.getClass().getMethod("getCapacity");
+			return ((Number) method.invoke(network)).floatValue();
+		} catch (Exception e) {
+			try {
+				Field field = network.getClass().getField("capacity");
+				return ((Number) field.get(network)).floatValue();
+			} catch (Exception ex) {
+				return 0.0f;
+			}
+		}
+	}
+
+	private static float getNetworkStress(Object network) {
+		if (network == null) return 0.0f;
+		// Try getStress() getter method first, fall back to public stress field
+		try {
+			Method method = network.getClass().getMethod("getStress");
+			return ((Number) method.invoke(network)).floatValue();
+		} catch (Exception e) {
+			try {
+				Field field = network.getClass().getField("stress");
+				return ((Number) field.get(network)).floatValue();
+			} catch (Exception ex) {
+				return 0.0f;
+			}
+		}
+	}
+
+	// =========================================================================
+	// CC: Tweaked Peripheral Implementation
+	// =========================================================================
+
 	/**
 	 * Implementation of {@link IPeripheral} for the Kinetic AI Core.
 	 *
-	 * <p>Bridges the Lua computer context with the asynchronous Java HTTP client.
+	 * <p>Bridges the Lua computer context with the asynchronous Java HTTP client and kinetic networks.
 	 */
 	public static class KineticAICorePeripheral implements IPeripheral {
 
@@ -113,17 +239,44 @@ public class KineticAICoreBlockEntity extends BlockEntity {
 		}
 
 		/**
+		 * Reads kinetic network telemetry from adjacent blocks.
+		 *
+		 * @return a map containing speed, capacity, stress, load %, and status flags.
+		 */
+		@LuaFunction
+		public final Map<String, Object> getKineticData() {
+			KineticData data = blockEntity.getAdjacentKineticData();
+			Map<String, Object> map = new HashMap<>();
+			map.put("speed", data.speed);
+			map.put("stress", data.stress);
+			map.put("capacity", data.capacity);
+			map.put("stressPercent", data.capacity > 0.0f ? (data.stress / data.capacity) * 100.0f : 0.0f);
+			map.put("isPowered", data.speed >= 16.0f);
+			map.put("isOverstressed", data.capacity > 0.0f && data.stress >= data.capacity);
+			return map;
+		}
+
+		/**
 		 * Triggers an asynchronous generation request to a local Ollama server.
-		 * Returns a unique request ID immediately, then streams tokens back to the
-		 * computer as `ai_token` events.
+		 * Requires adjacent rotational force to run (minimum 16 RPM).
 		 *
 		 * @param computer injected computer access
 		 * @param prompt the prompt text to generate from
 		 * @param model the model to use (defaults to "llama3" if null/empty)
 		 * @return a unique 8-character request ID
+		 * @throws LuaException if unpowered or the network is overstressed
 		 */
 		@LuaFunction
-		public final String streamTelemetry(IComputerAccess computer, String prompt, @Nullable String model) {
+		public final String streamTelemetry(IComputerAccess computer, String prompt, @Nullable String model) throws LuaException {
+			// Enforce Create kinetic power requirement
+			KineticData data = blockEntity.getAdjacentKineticData();
+			if (data.speed < 16.0f) {
+				throw new LuaException("Kinetic AI Core is unpowered. Rotational force (minimum 16 RPM) required on an adjacent block.");
+			}
+			if (data.capacity > 0.0f && data.stress >= data.capacity) {
+				throw new LuaException("Kinetic AI Core has stalled due to adjacent kinetic network overstress.");
+			}
+
 			String selectedModel = (model != null && !model.trim().isEmpty()) ? model.trim() : "llama3";
 			String requestId = UUID.randomUUID().toString().substring(0, 8);
 
