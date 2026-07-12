@@ -403,7 +403,8 @@ public class KineticAICoreBlockEntity extends BlockEntity {
 			if (vramGb > 0 && (vramGb < modelVramGb || (vramGb - modelVramGb) <= 2)) {
 				String recText = (recommendation != null) ? "'" + recommendation + "'" : "a smaller model";
 				String warningMessage = String.format(
-						"[Hardware Note: Detected %dGB VRAM. Running '%s' requires ~%dGB. If you experience low frame rates with shaders active, consider switching to %s.]\n\n",
+						"[Hardware Note: Detected %dGB VRAM. Running '%s' requires ~%dGB. If you experience low frame rates with shaders active, consider switching to %s.]\n" +
+						"[System Note: Loading model into memory. This may take a while if running on CPU/system memory...]\n\n",
 						vramGb, selectedModel, modelVramGb, recText
 				);
 				computer.queueEvent("ai_token", requestId, warningMessage, false);
