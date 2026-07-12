@@ -232,6 +232,23 @@ public class KineticAICoreBlockEntity extends BlockEntity {
 		@Override
 		public void attach(@NotNull IComputerAccess computer) {
 			blockEntity.attachedComputers.add(computer);
+
+			// Automatically mount read-only "ai" directory from assets/ccc-ai-age/lua/ (v0.33)
+			net.minecraft.world.World world = blockEntity.getWorld();
+			if (world != null && !world.isClient() && world.getServer() != null) {
+				dan200.computercraft.api.filesystem.Mount mount = dan200.computercraft.api.ComputerCraftAPI.createResourceMount(
+					world.getServer(),
+					"ccc-ai-age",
+					"lua"
+				);
+				if (mount != null) {
+					try {
+						computer.mount("ai", mount);
+					} catch (Exception e) {
+						net.ccc_ai_age.CCCAIAge.LOGGER.error("[CC:C AI Age] Failed to mount AI lua directory to computer: {}", e.getMessage());
+					}
+				}
+			}
 		}
 
 		@Override
@@ -243,6 +260,12 @@ public class KineticAICoreBlockEntity extends BlockEntity {
 					context.cancel();
 				}
 			});
+			// Unmount the read-only directory
+			try {
+				computer.unmount("ai");
+			} catch (Exception e) {
+				// Ignore if already unmounted or invalid
+			}
 		}
 
 		@Override

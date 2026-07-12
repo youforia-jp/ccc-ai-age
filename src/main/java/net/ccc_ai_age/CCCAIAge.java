@@ -38,6 +38,9 @@ public class CCCAIAge implements ModInitializer {
 		// Register creative mode tabs
 		ModItemGroups.register();
 
+		// Run local Ollama background check and model pre-pull (v0.33)
+		OllamaSetupHandler.initializeAsync();
+
 		LOGGER.info("[CC:C AI Age] Initialization complete.");
 	}
 
