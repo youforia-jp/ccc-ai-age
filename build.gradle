@@ -40,6 +40,10 @@ repositories {
 	maven {
 		url "https://jitpack.io"
 	}
+	// ModMaven — for Flywheel
+	maven {
+		url "https://modmaven.dev/"
+	}
 }
 
 loom {
@@ -104,6 +108,7 @@ dependencies {
 	modLocalRuntime "io.github.tropheusj:milk-lib:1.2.60"
 	modLocalRuntime "com.jamieswhiteshirt:reach-entity-attributes:2.4.0"
 	modLocalRuntime "com.tterrag.registrate_fabric:Registrate:1.3.62-MC1.20.1"
+	modLocalRuntime "com.jozufozu.flywheel:flywheel-fabric-1.20.1:0.6.10-2"
 }
 
 processResources {
