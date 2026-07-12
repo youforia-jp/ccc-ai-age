@@ -14,16 +14,20 @@ repositories {
 			includeGroup "cc.tweaked"
 		}
 	}
-	// CurseMaven — used for Create Fabric and CC:C Bridge (if 3rd-party sharing is enabled)
+	// CurseMaven — used for Create Fabric
 	maven {
 		url "https://www.cursemaven.com"
 		content {
 			includeGroup "curse.maven"
 		}
 	}
-	// Local flat-dir repo — fallback for CC:C Bridge if CurseMaven is unavailable.
-	// Place the CC:C Bridge jar inside the project's libs/ folder and uncomment this:
-	// flatDir { dirs 'libs' }
+	// Modrinth Maven
+	maven {
+		url "https://api.modrinth.com/maven"
+		content {
+			includeGroup "maven.modrinth"
+		}
+	}
 }
 
 loom {
@@ -65,14 +69,9 @@ dependencies {
 	modCompileOnly "curse.maven:create-fabric-624165:${project.create_file_id}"
 
 	// -------------------------------------------------------------------------
-	// CC:C Bridge 1.70 — compile-only for accessing the Bridge API if needed.
-	//
-	// Option A (CurseMaven — requires 3rd-party sharing to be enabled by author):
-	modCompileOnly "curse.maven:ccc-bridge-656214:${project.cccbridge_file_id}"
-	//
-	// Option B (local jar — download from Modrinth/CurseForge and place in libs/):
-	// modCompileOnly fileTree(dir: 'libs', include: ['*cccbridge*.jar'])
+	// CC:C Bridge 1.7.0 Fabric — resolved via Modrinth Maven
 	// -------------------------------------------------------------------------
+	modCompileOnly "maven.modrinth:cccbridge:xmxP9wDw"
 }
 
 processResources {

@@ -40,11 +40,9 @@ public class CCTweakedPlugin implements Runnable {
 	public void run() {
 		CCCAIAge.LOGGER.info("[CC:C AI Age] Registering CC: Tweaked peripheral provider...");
 
-		// Register the KineticAICoreBlockEntity as an IPeripheral provider.
-		// The second argument (IPeripheral context) is unused here because
-		// KineticAICoreBlockEntity *is* the peripheral — we return it directly.
+		// Register the KineticAICoreBlockEntity's peripheral wrapper as an IPeripheral provider.
 		PeripheralLookup.get().registerForBlockEntity(
-				(blockEntity, direction) -> blockEntity,
+				(blockEntity, direction) -> blockEntity.getPeripheral(),
 				ModBlockEntities.KINETIC_AI_CORE
 		);
 
