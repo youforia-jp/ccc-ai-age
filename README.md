@@ -1,12 +1,12 @@
 # CC:C AI Age
 
-> **Build `0.31`** — Phase 1, 2, 3, & 4 complete: Kinetic AI Core block + CC:T peripheral + Ollama Link + Create Integration
+> **Build `0.32`** — Phase 1, 2, 3, & 4 complete: Kinetic AI Core block + CC:T peripheral + Ollama Link + Create Integration + 3-Tier Core System + Run Compatibility
 
 A Minecraft 1.20.1 Fabric mod that bridges **CC: Tweaked** computers with **Create**'s kinetic network through an AI-powered peripheral, connecting Lua scripting with a local [Ollama](https://ollama.com) LLM backend.
 
 ---
 
-## ✨ Features (v0.31)
+## ✨ Features (v0.32)
 
 | Feature | Status | Description |
 |---|---|---|

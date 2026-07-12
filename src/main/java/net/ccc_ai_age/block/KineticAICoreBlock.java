@@ -3,6 +3,7 @@ package net.ccc_ai_age.block;
 import net.ccc_ai_age.ModBlockEntities;
 import net.ccc_ai_age.blockentity.KineticAICoreBlockEntity;
 
+import net.ccc_ai_age.api.AITier;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
@@ -24,8 +25,15 @@ import net.minecraft.util.math.BlockPos;
  */
 public class KineticAICoreBlock extends Block implements BlockEntityProvider {
 
-	public KineticAICoreBlock(Settings settings) {
+	private final AITier tier;
+
+	public KineticAICoreBlock(Settings settings, AITier tier) {
 		super(settings);
+		this.tier = tier;
+	}
+
+	public AITier getTier() {
+		return tier;
 	}
 
 	// -------------------------------------------------------------------------

@@ -1,5 +1,6 @@
 package net.ccc_ai_age;
 
+import net.ccc_ai_age.api.AITier;
 import net.ccc_ai_age.block.KineticAICoreBlock;
 
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
@@ -42,13 +43,34 @@ public final class ModBlocks {
 	 *   <li>Gold/brass map colour</li>
 	 * </ul>
 	 */
-	public static final Block KINETIC_AI_CORE = new KineticAICoreBlock(
+	public static final Block BASIC_KINETIC_AI_CORE = new KineticAICoreBlock(
 			AbstractBlock.Settings.create()
 					.mapColor(MapColor.GOLD)
 					.requiresTool()                   // pickaxe tag enforced via data tag JSON
 					.strength(3.0f, 6.0f)
 					.sounds(BlockSoundGroup.METAL)
-					.pistonBehavior(PistonBehavior.BLOCK)
+					.pistonBehavior(PistonBehavior.BLOCK),
+			AITier.BASIC
+	);
+
+	public static final Block ADVANCED_KINETIC_AI_CORE = new KineticAICoreBlock(
+			AbstractBlock.Settings.create()
+					.mapColor(MapColor.DIAMOND_BLUE)
+					.requiresTool()
+					.strength(3.0f, 6.0f)
+					.sounds(BlockSoundGroup.METAL)
+					.pistonBehavior(PistonBehavior.BLOCK),
+			AITier.ADVANCED
+	);
+
+	public static final Block QUANTUM_KINETIC_AI_CORE = new KineticAICoreBlock(
+			AbstractBlock.Settings.create()
+					.mapColor(MapColor.PURPLE)
+					.requiresTool()
+					.strength(3.0f, 6.0f)
+					.sounds(BlockSoundGroup.METAL)
+					.pistonBehavior(PistonBehavior.BLOCK),
+			AITier.QUANTUM
 	);
 
 	// -------------------------------------------------------------------------
@@ -60,18 +82,43 @@ public final class ModBlocks {
 	 * {@link CCCAIAge#onInitialize()}.
 	 */
 	public static void register() {
-		// --- Kinetic AI Core ---
+		// --- Basic Kinetic AI Core ---
 		Registry.register(
 				Registries.BLOCK,
-				CCCAIAge.id("kinetic_ai_core"),
-				KINETIC_AI_CORE
+				CCCAIAge.id("basic_kinetic_ai_core"),
+				BASIC_KINETIC_AI_CORE
 		);
-
-		BlockItem kineticAICoreItem = new BlockItem(KINETIC_AI_CORE, new FabricItemSettings());
+		BlockItem basicKineticAICoreItem = new BlockItem(BASIC_KINETIC_AI_CORE, new FabricItemSettings());
 		Registry.register(
 				Registries.ITEM,
-				CCCAIAge.id("kinetic_ai_core"),
-				kineticAICoreItem
+				CCCAIAge.id("basic_kinetic_ai_core"),
+				basicKineticAICoreItem
+		);
+
+		// --- Advanced Kinetic AI Core ---
+		Registry.register(
+				Registries.BLOCK,
+				CCCAIAge.id("advanced_kinetic_ai_core"),
+				ADVANCED_KINETIC_AI_CORE
+		);
+		BlockItem advancedKineticAICoreItem = new BlockItem(ADVANCED_KINETIC_AI_CORE, new FabricItemSettings());
+		Registry.register(
+				Registries.ITEM,
+				CCCAIAge.id("advanced_kinetic_ai_core"),
+				advancedKineticAICoreItem
+		);
+
+		// --- Quantum Kinetic AI Core ---
+		Registry.register(
+				Registries.BLOCK,
+				CCCAIAge.id("quantum_kinetic_ai_core"),
+				QUANTUM_KINETIC_AI_CORE
+		);
+		BlockItem quantumKineticAICoreItem = new BlockItem(QUANTUM_KINETIC_AI_CORE, new FabricItemSettings());
+		Registry.register(
+				Registries.ITEM,
+				CCCAIAge.id("quantum_kinetic_ai_core"),
+				quantumKineticAICoreItem
 		);
 
 

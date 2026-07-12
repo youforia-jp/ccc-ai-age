@@ -1,4 +1,6 @@
 {
-  "block.ccc-ai-age.kinetic_ai_core": "Kinetic AI Core",
+  "block.ccc-ai-age.basic_kinetic_ai_core": "Basic Kinetic AI Core",
+  "block.ccc-ai-age.advanced_kinetic_ai_core": "Advanced Kinetic AI Core",
+  "block.ccc-ai-age.quantum_kinetic_ai_core": "Quantum Kinetic AI Core",
   "itemGroup.ccc-ai-age.main": "CC:C AI Age"
 }

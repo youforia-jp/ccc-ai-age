@@ -1,6 +1,8 @@
 package net.ccc_ai_age.blockentity;
 
 import net.ccc_ai_age.ModBlockEntities;
+import net.ccc_ai_age.api.AITier;
+import net.ccc_ai_age.block.KineticAICoreBlock;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -64,6 +66,18 @@ public class KineticAICoreBlockEntity extends BlockEntity {
 	 */
 	public IPeripheral getPeripheral() {
 		return this.peripheral;
+	}
+
+	/**
+	 * Extracts the tier of the AI core from its block state.
+	 * 
+	 * @return the AITier associated with this block entity
+	 */
+	public AITier getTier() {
+		if (this.getCachedState().getBlock() instanceof KineticAICoreBlock) {
+			return ((KineticAICoreBlock) this.getCachedState().getBlock()).getTier();
+		}
+		return AITier.BASIC; // fallback
 	}
 
 	@Override
@@ -251,7 +265,16 @@ public class KineticAICoreBlockEntity extends BlockEntity {
 			map.put("stress", data.stress);
 			map.put("capacity", data.capacity);
 			map.put("stressPercent", data.capacity > 0.0f ? (data.stress / data.capacity) * 100.0f : 0.0f);
-			map.put("isPowered", data.speed >= 16.0f);
+			AITier tier = blockEntity.getTier();
+			boolean isPowered;
+			if (tier == AITier.QUANTUM) {
+				isPowered = true;
+			} else if (tier == AITier.ADVANCED) {
+				isPowered = data.speed >= 16.0f;
+			} else {
+				isPowered = data.speed >= 32.0f;
+			}
+			map.put("isPowered", isPowered);
 			map.put("isOverstressed", data.capacity > 0.0f && data.stress >= data.capacity);
 			return map;
 		}
@@ -268,22 +291,37 @@ public class KineticAICoreBlockEntity extends BlockEntity {
 		 */
 		@LuaFunction
 		public final String streamTelemetry(IComputerAccess computer, String prompt, @Nullable String model) throws LuaException {
-			// Enforce Create kinetic power requirement
+			AITier tier = blockEntity.getTier();
 			KineticData data = blockEntity.getAdjacentKineticData();
-			if (data.speed < 16.0f) {
-				throw new LuaException("Kinetic AI Core is unpowered. Rotational force (minimum 16 RPM) required on an adjacent block.");
-			}
-			if (data.capacity > 0.0f && data.stress >= data.capacity) {
-				throw new LuaException("Kinetic AI Core has stalled due to adjacent kinetic network overstress.");
+			
+			// Enforce tier-based kinetic power requirements
+			if (tier != AITier.QUANTUM) {
+				float requiredSpeed = (tier == AITier.ADVANCED) ? 16.0f : 32.0f;
+				if (data.speed < requiredSpeed) {
+					throw new LuaException(String.format("Kinetic AI Core (%s) is unpowered. Rotational force (minimum %.0f RPM) required on an adjacent block.", tier.name(), requiredSpeed));
+				}
+				if (data.capacity > 0.0f && data.stress >= data.capacity) {
+					throw new LuaException("Kinetic AI Core has stalled due to adjacent kinetic network overstress.");
+				}
 			}
 
-			String selectedModel = (model != null && !model.trim().isEmpty()) ? model.trim() : "llama3";
+			String selectedModel;
+			String finalPrompt;
+
+			if (tier == AITier.BASIC) {
+				selectedModel = "qwen:0.5b";
+				finalPrompt = "You are a primitive, low-powered computational matrix. Keep responses incredibly simple and short: " + prompt;
+			} else {
+				selectedModel = (model != null && !model.trim().isEmpty()) ? model.trim() : "llama3";
+				finalPrompt = prompt;
+			}
+
 			String requestId = UUID.randomUUID().toString().substring(0, 8);
 
 			// Build Ollama JSON POST payload
 			JsonObject payload = new JsonObject();
 			payload.addProperty("model", selectedModel);
-			payload.addProperty("prompt", prompt);
+			payload.addProperty("prompt", finalPrompt);
 			payload.addProperty("stream", true);
 			String jsonBody = new Gson().toJson(payload);
 

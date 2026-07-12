@@ -14,9 +14,11 @@ public class ModItemGroups {
             CCCAIAge.id("main"),
             FabricItemGroup.builder()
                     .displayName(Text.translatable("itemGroup.ccc-ai-age.main"))
-                    .icon(() -> new ItemStack(ModBlocks.KINETIC_AI_CORE))
+                    .icon(() -> new ItemStack(ModBlocks.ADVANCED_KINETIC_AI_CORE))
                     .entries((displayContext, entries) -> {
-                        entries.add(ModBlocks.KINETIC_AI_CORE);
+                        entries.add(ModBlocks.BASIC_KINETIC_AI_CORE);
+                        entries.add(ModBlocks.ADVANCED_KINETIC_AI_CORE);
+                        entries.add(ModBlocks.QUANTUM_KINETIC_AI_CORE);
                     })
                     .build()
     );

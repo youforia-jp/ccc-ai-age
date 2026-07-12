@@ -28,6 +28,14 @@ repositories {
 			includeGroup "maven.modrinth"
 		}
 	}
+	// JamiesWhiteShirt Maven — for reach-entity-attributes
+	maven {
+		url "https://maven.jamieswhiteshirt.com/libs-release/"
+	}
+	// DevOS Snapshots Maven — for milk-lib and porting-lib
+	maven {
+		url "https://mvn.devos.one/snapshots/"
+	}
 }
 
 loom {
@@ -72,6 +80,25 @@ dependencies {
 	// CC:C Bridge 1.7.0 Fabric — resolved via Modrinth Maven
 	// -------------------------------------------------------------------------
 	modCompileOnly "maven.modrinth:cccbridge:xmxP9wDw"
+
+	// -------------------------------------------------------------------------
+	// Runtime dependencies for ./gradlew runClient compatibility
+	// -------------------------------------------------------------------------
+	modLocalRuntime "cc.tweaked:cc-tweaked-1.20.1-fabric:${project.cct_version}"
+	modLocalRuntime "maven.modrinth:cccbridge:xmxP9wDw"
+	modLocalRuntime "maven.modrinth:forge-config-api-port:HvR3IdRE"
+	modLocalRuntime "io.github.fabricators_of_create.Porting-Lib:accessors:2.3.16-beta.81+1.20.1"
+	modLocalRuntime "io.github.fabricators_of_create.Porting-Lib:base:2.3.16-beta.81+1.20.1"
+	modLocalRuntime "io.github.fabricators_of_create.Porting-Lib:entity:2.3.16-beta.81+1.20.1"
+	modLocalRuntime "io.github.fabricators_of_create.Porting-Lib:extensions:2.3.16-beta.81+1.20.1"
+	modLocalRuntime "io.github.fabricators_of_create.Porting-Lib:networking:2.3.16-beta.81+1.20.1"
+	modLocalRuntime "io.github.fabricators_of_create.Porting-Lib:obj_loader:2.3.16-beta.81+1.20.1"
+	modLocalRuntime "io.github.fabricators_of_create.Porting-Lib:tags:2.3.16-beta.81+1.20.1"
+	modLocalRuntime "io.github.fabricators_of_create.Porting-Lib:transfer:2.3.16-beta.81+1.20.1"
+	modLocalRuntime "io.github.fabricators_of_create.Porting-Lib:models:2.3.16-beta.81+1.20.1"
+	modLocalRuntime "io.github.fabricators_of_create.Porting-Lib:client_events:2.3.16-beta.81+1.20.1"
+	modLocalRuntime "io.github.tropheusj:milk-lib:1.2.60"
+	modLocalRuntime "com.jamieswhiteshirt:reach-entity-attributes:2.4.0"
 }
 
 processResources {

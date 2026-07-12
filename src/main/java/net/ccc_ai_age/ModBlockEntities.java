@@ -28,7 +28,10 @@ public final class ModBlockEntities {
 	 */
 	public static final BlockEntityType<KineticAICoreBlockEntity> KINETIC_AI_CORE =
 			FabricBlockEntityTypeBuilder
-					.create(KineticAICoreBlockEntity::new, ModBlocks.KINETIC_AI_CORE)
+					.create(KineticAICoreBlockEntity::new, 
+							ModBlocks.BASIC_KINETIC_AI_CORE,
+							ModBlocks.ADVANCED_KINETIC_AI_CORE,
+							ModBlocks.QUANTUM_KINETIC_AI_CORE)
 					.build();
 
 	// -------------------------------------------------------------------------
