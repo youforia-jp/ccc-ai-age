@@ -1,22 +1,22 @@
 # CC:C AI Age
 
-> **Build `0.32`** — Phase 1, 2, 3, & 4 complete: Kinetic AI Core block + CC:T peripheral + Ollama Link + Create Integration + 3-Tier Core System + Run Compatibility
+> **Build `0.33`** — Phase 1, 2, 3, & 4 complete: Kinetic AI Core block + CC:T peripheral + Ollama Link + Create Integration + 3-Tier Core System + Background Setup Handler + Lua Script Mounting
 
 A Minecraft 1.20.1 Fabric mod that bridges **CC: Tweaked** computers with **Create**'s kinetic network through an AI-powered peripheral, connecting Lua scripting with a local [Ollama](https://ollama.com) LLM backend.
 
 ---
 
-## ✨ Features (v0.32)
+## ✨ Features (v0.33)
 
 | Feature | Status | Description |
 |---|---|---|
 | **Custom Creative Tab** | ✅ Implemented | Mod items are available under the CC:C AI Age creative tab. |
-| **Kinetic AI Core** block | ✅ Implemented | Brass-tier block (requires pickaxe, metal sounds). |
-| **Block Entity Registration** | ✅ Implemented | Linked to `KineticAICoreBlockEntity` type. |
+| **3-Tier Block Progression** | ✅ Implemented | Progression system featuring Basic (requires >= 32 RPM, uses `qwen:0.5b`), Advanced (requires >= 16 RPM), and Quantum (requires 0 RPM / self-powered) cores. |
 | **CC:T Peripheral Discovery** | ✅ Implemented | Discovered adjacent to computers using `peripheral.find("ai_core")`. |
 | **Ollama Async Streaming** | ✅ Implemented | Calls local Ollama `http://localhost:11434/api/generate` asynchronously and streams NDJSON responses. |
+| **Background Setup Handler** | ✅ Implemented | Non-blocking startup handler that checks if Ollama is online, launches `ollama serve` if offline, and pre-pulls `qwen:0.5b` asynchronously. |
+| **Lua Script Injection** | ✅ Implemented | Automatically mounts `assets/ccc-ai-age/lua/` as a read-only directory `"ai"` on the root of any connected computer. |
 | **Create Kinetic Integration** | ✅ Implemented | Scans adjacent block entities for speed/stress metrics and exposes them to Lua. |
-| **Kinetic Power Enforcements** | ✅ Implemented | Restricts AI queries. Prompt generation requires a minimum of `16 RPM` and stalled networks (overstressed) block requests. |
 
 ---
 
@@ -26,22 +26,28 @@ A Minecraft 1.20.1 Fabric mod that bridges **CC: Tweaked** computers with **Crea
 - `KineticAICoreBlock` — extends `Block`, implements `BlockEntityProvider`.
 - `ModBlocks` — registers block + `BlockItem` into the Redstone creative tab.
 - `ModBlockEntities` — registers `BlockEntityType<KineticAICoreBlockEntity>`.
-- Resource files: blockstates, models, lang, loot table, pickaxe mining tag.
+- Resource files: lang, blockstates, models, loot table, pickaxe tags.
 
 ### Phase 2 — CC: Tweaked Peripheral ✅
 - `KineticAICoreBlockEntity` peripheral interface is delegated to an inner class `KineticAICorePeripheral` to avoid class inheritance/method clashes (specifically `getType()`).
 - Peripheral type: `"ai_core"`.
-- `CCTweakedPlugin` registered via the `"computercraft"` Fabric entrypoint.
 
 ### Phase 3 — Ollama HTTP Streaming ✅
 - Asynchronous Java HTTP client calling `http://localhost:11434/api/generate`.
 - Token-by-token streaming pushed back to Lua via `ai_token` events.
 - Per-computer request lifecycle cancellation (cleanup on computer detaching or block breaking).
 
-### Phase 4 — Create Kinetic Integration ✅
+### Phase 4 — Create Kinetic Integration & 3-Tier System ✅
 - Reads Create shaft speed/stress from adjacent kinetic network via Java reflection.
 - Exposes metrics via `getKineticData()` Lua method.
-- Restricts AI telemetry queries if adjacent network speed is `< 16 RPM` or if the network is overstressed.
+- Enforces 3 tiers of core blocks:
+  - **Basic:** Requires `>= 32 RPM` to run. Overrides prompt generation to force `qwen:0.5b` and injects primitive matrix behavior instructions.
+  - **Advanced:** Enforces `>= 16 RPM` and standard Ollama request configurations.
+  - **Quantum:** Requires `0 RPM` / self-powered, bypassing all rotational checks.
+
+### Phase 5 — Background Setup Handler & Mounting ✅
+- `OllamaSetupHandler` — runs background startup checks to see if Ollama is online, starts it if missing, and pre-pulls `qwen:0.5b`.
+- Automatic resource mounting — mounts read-only directory `ai` onto the computer when it attaches, unmounts it on detaching.
 
 ---
 
@@ -55,8 +61,6 @@ A Minecraft 1.20.1 Fabric mod that bridges **CC: Tweaked** computers with **Crea
 | CC: Tweaked | 1.116.1 (Fabric) | ✅ |
 | Create Fabric | 0.5.1-j | Suggested / Required for Kinetics |
 | CC:C Bridge | 1.70 | Suggested |
-
-> **Note:** CC:C Bridge is optional — the peripheral core works with vanilla CC: Tweaked.
 
 ---
 
@@ -75,54 +79,20 @@ Output jar: `build/libs/ccc-ai-age-1.0.0.jar`
 ### Running in dev
 ```bash
 ./gradlew runClient   # Minecraft client with mod loaded
-./gradlew runServer   # Dedicated server
 ```
 
 ---
 
 ## 🧪 Testing the Peripheral (in-game)
 
-1. Place a **Kinetic AI Core** block.
-2. Supply rotational power to it from any adjacent block (minimum 16 RPM).
+1. Place any **Kinetic AI Core** block (Basic, Advanced, or Quantum).
+2. Connect rotational power if using Basic or Advanced (minimum 32 RPM for Basic, 16 RPM for Advanced).
 3. Place a **CC: Tweaked Computer** adjacent to it.
-4. Run the following Lua script to test the telemetry data and print a streaming Ollama generation:
-
-```lua
-local core = peripheral.find("ai_core")
-if not core then
-    print("No AI Core found!")
-    return
-end
-
--- 1. Query kinetic network status
-local data = core.getKineticData()
-print("Speed: " .. data.speed .. " RPM")
-print("Stress load: " .. data.stressPercent .. "%")
-print("Powered: " .. tostring(data.isPowered))
-print("Overstressed: " .. tostring(data.isOverstressed))
-
--- 2. Stream generation from local Ollama (requires Ollama running locally)
-print("\nContacting Ollama...")
-local ok, reqId = pcall(core.streamTelemetry, "Write a haiku about gears.", "llama3")
-if not ok then
-    print("Failed: " .. reqId)
-    return
-end
-
--- Loop until the end token event is caught
-while true do
-    local event, id, token, done = os.pullEvent("ai_token")
-    if id == reqId then
-        if token then
-            io.write(token)
-        end
-        if done then
-            print()
-            break
-        end
-    end
-end
-```
+4. The directory `/ai/` will be automatically mounted. Run the script:
+   ```bash
+   ai/stream "Write a haiku about gears"
+   ```
+   This will call the adjacent peripheral and stream the response directly on the computer screen!
 
 ---
 
@@ -133,8 +103,12 @@ src/main/java/net/ccc_ai_age/
 ├── CCCAIAge.java                        Main mod initializer
 ├── ModBlocks.java                       Block + BlockItem registry
 ├── ModBlockEntities.java                BlockEntityType registry
+├── ModItemGroups.java                   Creative Tab registry
+├── OllamaSetupHandler.java              Background Ollama setup and model pre-pull helper
+├── api/
+│   └── AITier.java                      Core tier enum (BASIC, ADVANCED, QUANTUM)
 ├── block/
-│   └── KineticAICoreBlock.java          Block class (BlockEntityProvider)
+│   └── KineticAICoreBlock.java          Block class with tier properties
 ├── blockentity/
 │   └── KineticAICoreBlockEntity.java    BlockEntity + KineticAICorePeripheral + Reflection Helpers
 └── integration/
