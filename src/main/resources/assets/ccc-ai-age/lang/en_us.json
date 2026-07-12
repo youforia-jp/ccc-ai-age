@@ -8,5 +8,6 @@
   "turtle_upgrade.ccc-ai-age.quantum_kinetic_ai_core_upgrade.name": "Quantum Kinetic AI Upgrade",
   "turtle_upgrade.ccc-ai-age.basic_kinetic_ai_core_upgrade.adjective": "Basic Kinetic AI",
   "turtle_upgrade.ccc-ai-age.advanced_kinetic_ai_core_upgrade.adjective": "Advanced Kinetic AI",
-  "turtle_upgrade.ccc-ai-age.quantum_kinetic_ai_core_upgrade.adjective": "Quantum Kinetic AI"
+  "turtle_upgrade.ccc-ai-age.quantum_kinetic_ai_core_upgrade.adjective": "Quantum Kinetic AI",
+  "item.ccc-ai-age.neural_turtle.name": "Neural Advanced Turtle"
 }

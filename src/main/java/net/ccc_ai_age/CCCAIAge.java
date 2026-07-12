@@ -38,9 +38,19 @@ public class CCCAIAge implements ModInitializer {
 					(id, stack) -> new net.ccc_ai_age.integration.AITurtleUpgrade(id, net.ccc_ai_age.api.AITier.QUANTUM, stack)
 			);
 
+	public static final net.minecraft.recipe.RecipeSerializer<net.ccc_ai_age.recipe.NeuralTurtleRecipe> NEURAL_TURTLE_RECIPE_SERIALIZER =
+			new net.minecraft.recipe.SpecialRecipeSerializer<>(net.ccc_ai_age.recipe.NeuralTurtleRecipe::new);
+
 	@Override
 	public void onInitialize() {
 		LOGGER.info("[CC:C AI Age] Initializing — Phase 1 & 2 (Kinetic AI Core + CC:T peripheral)");
+
+		// Register custom recipes (v0.41)
+		net.minecraft.registry.Registry.register(
+				net.minecraft.registry.Registries.RECIPE_SERIALIZER,
+				CCCAIAge.id("neural_turtle_crafting"),
+				NEURAL_TURTLE_RECIPE_SERIALIZER
+		);
 
 		// Register turtle upgrades (v0.39)
 		net.minecraft.registry.Registry<dan200.computercraft.api.turtle.TurtleUpgradeSerialiser<?>> registry =

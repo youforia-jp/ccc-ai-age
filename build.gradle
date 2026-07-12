@@ -76,7 +76,7 @@ dependencies {
 	// CC: Tweaked 1.116.1 — compile-only so we link against the API without
 	// bundling the mod. At runtime the player provides CC:T themselves.
 	// -------------------------------------------------------------------------
-	modCompileOnly "cc.tweaked:cc-tweaked-1.20.1-fabric-api:${project.cct_version}"
+	modCompileOnly "cc.tweaked:cc-tweaked-1.20.1-fabric:${project.cct_version}"
 
 	// -------------------------------------------------------------------------
 	// Create Fabric 0.5.1-j-patch3 — resolved via Modrinth Maven to automatically
