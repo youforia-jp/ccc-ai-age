@@ -38,3 +38,7 @@ hs_err_*.log
 replay_*.log
 *.hprof
 *.jfr
+
+# local custom download folder and scratch scripts
+mods_to_install/
+scratch/
