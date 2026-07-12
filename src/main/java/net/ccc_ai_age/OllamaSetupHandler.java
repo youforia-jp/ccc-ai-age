@@ -26,6 +26,10 @@ public class OllamaSetupHandler {
 				CCCAIAge.LOGGER.info("[CC:C AI Age] Checking local Ollama instance on http://localhost:11434/...");
 				boolean online = isOllamaOnline();
 				if (!online) {
+					if (!ModConfig.get().enableAutoOllamaStart) {
+						CCCAIAge.LOGGER.warn("[CC:C AI Age] Ollama is offline. To allow the mod to start Ollama automatically, enable 'enableAutoOllamaStart' in config/ccc-ai-age.json.");
+						return;
+					}
 					CCCAIAge.LOGGER.info("[CC:C AI Age] Ollama not detected. Attempting to start local instance via 'ollama serve'...");
 					try {
 						new ProcessBuilder("ollama", "serve").start();
@@ -42,6 +46,11 @@ public class OllamaSetupHandler {
 						CCCAIAge.LOGGER.warn("[CC:C AI Age] Ollama serve was launched but is not responding on http://localhost:11434/");
 						return;
 					}
+				}
+
+				if (!ModConfig.get().enableAutoDownloads) {
+					CCCAIAge.LOGGER.info("[CC:C AI Age] Ollama is online. Background downloads are disabled. To allow automatic pre-downloading of models, set 'enableAutoDownloads' to true in config/ccc-ai-age.json.");
+					return;
 				}
 
 				CCCAIAge.LOGGER.info("[CC:C AI Age] Ollama is online. Ensuring all 5 model tiers are pulled...");

@@ -41,8 +41,18 @@ public class CCCAIAge implements ModInitializer {
 				ModBlockEntities.KINETIC_AI_CORE
 		);
 		
+		// Load configuration (v0.38)
+		ModConfig.load();
+		
 		// Register creative mode tabs
 		ModItemGroups.register();
+
+		// Register server play connection listener for the splash notification (v0.38)
+		net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
+			handler.player.sendMessage(net.minecraft.text.Text.literal(
+					"§b[CC:C AI Age] §fTo enable automatic Ollama startup and model pre-downloading, set 'enableAutoOllamaStart' and 'enableAutoDownloads' to true in config/ccc-ai-age.json."
+			), false);
+		});
 
 		// Run local Ollama background check and model pre-pull (v0.33)
 		OllamaSetupHandler.initializeAsync();
