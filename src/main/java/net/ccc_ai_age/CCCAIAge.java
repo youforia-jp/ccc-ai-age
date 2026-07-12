@@ -25,9 +25,45 @@ public class CCCAIAge implements ModInitializer {
 
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
+	public static final dan200.computercraft.api.turtle.TurtleUpgradeSerialiser<net.ccc_ai_age.integration.AITurtleUpgrade> BASIC_UPGRADE_SERIALISER =
+			dan200.computercraft.api.turtle.TurtleUpgradeSerialiser.simpleWithCustomItem(
+					(id, stack) -> new net.ccc_ai_age.integration.AITurtleUpgrade(id, net.ccc_ai_age.api.AITier.BASIC, stack)
+			);
+	public static final dan200.computercraft.api.turtle.TurtleUpgradeSerialiser<net.ccc_ai_age.integration.AITurtleUpgrade> ADVANCED_UPGRADE_SERIALISER =
+			dan200.computercraft.api.turtle.TurtleUpgradeSerialiser.simpleWithCustomItem(
+					(id, stack) -> new net.ccc_ai_age.integration.AITurtleUpgrade(id, net.ccc_ai_age.api.AITier.ADVANCED, stack)
+			);
+	public static final dan200.computercraft.api.turtle.TurtleUpgradeSerialiser<net.ccc_ai_age.integration.AITurtleUpgrade> QUANTUM_UPGRADE_SERIALISER =
+			dan200.computercraft.api.turtle.TurtleUpgradeSerialiser.simpleWithCustomItem(
+					(id, stack) -> new net.ccc_ai_age.integration.AITurtleUpgrade(id, net.ccc_ai_age.api.AITier.QUANTUM, stack)
+			);
+
 	@Override
 	public void onInitialize() {
 		LOGGER.info("[CC:C AI Age] Initializing — Phase 1 & 2 (Kinetic AI Core + CC:T peripheral)");
+
+		// Register turtle upgrades (v0.39)
+		net.minecraft.registry.Registry<dan200.computercraft.api.turtle.TurtleUpgradeSerialiser<?>> registry =
+				(net.minecraft.registry.Registry) net.minecraft.registry.Registries.REGISTRIES.get(
+						dan200.computercraft.api.turtle.TurtleUpgradeSerialiser.registryId().getValue()
+				);
+		if (registry != null) {
+			net.minecraft.registry.Registry.register(
+					registry,
+					CCCAIAge.id("basic_kinetic_ai_core_upgrade"),
+					BASIC_UPGRADE_SERIALISER
+			);
+			net.minecraft.registry.Registry.register(
+					registry,
+					CCCAIAge.id("advanced_kinetic_ai_core_upgrade"),
+					ADVANCED_UPGRADE_SERIALISER
+			);
+			net.minecraft.registry.Registry.register(
+					registry,
+					CCCAIAge.id("quantum_kinetic_ai_core_upgrade"),
+					QUANTUM_UPGRADE_SERIALISER
+			);
+		}
 
 		// Register blocks (and their BlockItems)
 		ModBlocks.register();

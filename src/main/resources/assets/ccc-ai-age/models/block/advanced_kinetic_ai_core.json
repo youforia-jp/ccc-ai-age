@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:block/cube_all",
   "textures": {
-    "all": "ccc-ai-age:block/kinetic_ai_core"
+    "all": "ccc-ai-age:block/advanced_kinetic_ai_core"
   }
 }

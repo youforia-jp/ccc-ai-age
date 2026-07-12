@@ -55,8 +55,6 @@ public class KineticAICoreBlockEntity extends BlockEntity {
 			.build();
 
 	private final IPeripheral peripheral;
-	private final Set<IComputerAccess> attachedComputers = ConcurrentHashMap.newKeySet();
-	private final Map<String, RequestContext> activeRequests = new ConcurrentHashMap<>();
 
 	public KineticAICoreBlockEntity(BlockPos pos, BlockState state) {
 		super(ModBlockEntities.KINETIC_AI_CORE, pos, state);
@@ -88,9 +86,9 @@ public class KineticAICoreBlockEntity extends BlockEntity {
 	public void markRemoved() {
 		super.markRemoved();
 		// Cancel all in-flight requests when the block entity is broken or unloaded
-		activeRequests.values().forEach(RequestContext::cancel);
-		activeRequests.clear();
-		attachedComputers.clear();
+		if (peripheral instanceof KineticAICorePeripheral) {
+			((KineticAICorePeripheral) peripheral).cancelAllRequests();
+		}
 	}
 
 	// =========================================================================
@@ -222,10 +220,25 @@ public class KineticAICoreBlockEntity extends BlockEntity {
 	 */
 	public static class KineticAICorePeripheral implements IPeripheral {
 
-		private final KineticAICoreBlockEntity blockEntity;
+		private final @Nullable KineticAICoreBlockEntity blockEntity;
+		private final AITier tier;
+		private final Set<IComputerAccess> attachedComputers = ConcurrentHashMap.newKeySet();
+		private final Map<String, RequestContext> activeRequests = new ConcurrentHashMap<>();
 
 		public KineticAICorePeripheral(KineticAICoreBlockEntity blockEntity) {
 			this.blockEntity = blockEntity;
+			this.tier = blockEntity.getTier();
+		}
+
+		public KineticAICorePeripheral(AITier tier) {
+			this.blockEntity = null;
+			this.tier = tier;
+		}
+
+		public void cancelAllRequests() {
+			activeRequests.values().forEach(RequestContext::cancel);
+			activeRequests.clear();
+			attachedComputers.clear();
 		}
 
 		@Override
@@ -235,31 +248,29 @@ public class KineticAICoreBlockEntity extends BlockEntity {
 
 		@Override
 		public void attach(@NotNull IComputerAccess computer) {
-			blockEntity.attachedComputers.add(computer);
+			attachedComputers.add(computer);
 		}
 
 		@Override
 		public void detach(@NotNull IComputerAccess computer) {
-			blockEntity.attachedComputers.remove(computer);
+			attachedComputers.remove(computer);
 			// Cancel all requests initiated by this specific computer
-			blockEntity.activeRequests.values().forEach(context -> {
+			activeRequests.values().forEach(context -> {
 				if (context.getComputer().equals(computer)) {
 					context.cancel();
 				}
 			});
-			// Unmount the read-only directory
-			try {
-				computer.unmount("ai");
-			} catch (Exception e) {
-				// Ignore if already unmounted or invalid
-			}
 		}
 
 		@Override
 		public boolean equals(@Nullable IPeripheral other) {
 			if (this == other) return true;
 			if (!(other instanceof KineticAICorePeripheral)) return false;
-			return this.blockEntity == ((KineticAICorePeripheral) other).blockEntity;
+			KineticAICorePeripheral o = (KineticAICorePeripheral) other;
+			if (this.blockEntity != null && o.blockEntity != null) {
+				return this.blockEntity == o.blockEntity;
+			}
+			return this.blockEntity == null && o.blockEntity == null && this.tier == o.tier;
 		}
 
 		/**
@@ -269,23 +280,35 @@ public class KineticAICoreBlockEntity extends BlockEntity {
 		 */
 		@LuaFunction
 		public final Map<String, Object> getKineticData() {
-			KineticData data = blockEntity.getAdjacentKineticData();
-			Map<String, Object> map = new HashMap<>();
-			map.put("speed", data.speed);
-			map.put("stress", data.stress);
-			map.put("capacity", data.capacity);
-			map.put("stressPercent", data.capacity > 0.0f ? (data.stress / data.capacity) * 100.0f : 0.0f);
-			AITier tier = blockEntity.getTier();
+			float speed, stress, capacity;
 			boolean isPowered;
-			if (tier == AITier.QUANTUM) {
-				isPowered = true;
-			} else if (tier == AITier.ADVANCED) {
-				isPowered = data.speed >= 16.0f;
+			if (blockEntity != null) {
+				KineticData data = blockEntity.getAdjacentKineticData();
+				speed = data.speed;
+				stress = data.stress;
+				capacity = data.capacity;
+				if (tier == AITier.QUANTUM) {
+					isPowered = true;
+				} else if (tier == AITier.ADVANCED) {
+					isPowered = speed >= 16.0f;
+				} else {
+					isPowered = speed >= 32.0f;
+				}
 			} else {
-				isPowered = data.speed >= 32.0f;
+				// Turtle upgrade fallback - always powered and fully functional!
+				speed = 64.0f;
+				stress = 0.0f;
+				capacity = 256.0f;
+				isPowered = true;
 			}
+
+			Map<String, Object> map = new HashMap<>();
+			map.put("speed", speed);
+			map.put("stress", stress);
+			map.put("capacity", capacity);
+			map.put("stressPercent", capacity > 0.0f ? (stress / capacity) * 100.0f : 0.0f);
 			map.put("isPowered", isPowered);
-			map.put("isOverstressed", data.capacity > 0.0f && data.stress >= data.capacity);
+			map.put("isOverstressed", capacity > 0.0f && stress >= capacity);
 			return map;
 		}
 
@@ -295,18 +318,18 @@ public class KineticAICoreBlockEntity extends BlockEntity {
 		 *
 		 * @param computer injected computer access
 		 * @param prompt the prompt text to generate from
-		 * @param model the model to use (defaults to "llama3" if null/empty)
+		 * @param modelOpt the model to use
 		 * @return a unique 8-character request ID
 		 * @throws LuaException if unpowered or the network is overstressed
 		 */
 		@LuaFunction
 		public final String streamTelemetry(IComputerAccess computer, String prompt, Optional<String> modelOpt) throws LuaException {
 			String model = modelOpt.orElse(null);
-			AITier tier = blockEntity.getTier();
-			KineticData data = blockEntity.getAdjacentKineticData();
+			AITier tier = this.tier;
 			
 			// Enforce tier-based kinetic power requirements
-			if (tier != AITier.QUANTUM) {
+			if (blockEntity != null && tier != AITier.QUANTUM) {
+				KineticData data = blockEntity.getAdjacentKineticData();
 				float requiredSpeed = (tier == AITier.ADVANCED) ? 16.0f : 32.0f;
 				if (data.speed < requiredSpeed) {
 					throw new LuaException(String.format("Kinetic AI Core (%s) is unpowered. Rotational force (minimum %.0f RPM) required on an adjacent block.", tier.name(), requiredSpeed));
@@ -429,12 +452,12 @@ public class KineticAICoreBlockEntity extends BlockEntity {
 			);
 
 			RequestContext context = new RequestContext(computer, future);
-			blockEntity.activeRequests.put(requestId, context);
+			activeRequests.put(requestId, context);
 
 			future.thenAcceptAsync(response -> {
 				if (response.statusCode() != 200) {
 					computer.queueEvent("ai_token", requestId, "Error: Ollama returned status " + response.statusCode(), true);
-					blockEntity.activeRequests.remove(requestId);
+					activeRequests.remove(requestId);
 					return;
 				}
 
@@ -463,13 +486,13 @@ public class KineticAICoreBlockEntity extends BlockEntity {
 						computer.queueEvent("ai_token", requestId, "Error: " + e.getMessage(), true);
 					}
 				} finally {
-					blockEntity.activeRequests.remove(requestId);
+					activeRequests.remove(requestId);
 				}
 			}).exceptionally(ex -> {
 				if (!context.isCancelled()) {
 					computer.queueEvent("ai_token", requestId, "Connection failed: " + ex.getMessage(), true);
 				}
-				blockEntity.activeRequests.remove(requestId);
+				activeRequests.remove(requestId);
 				return null;
 			});
 
