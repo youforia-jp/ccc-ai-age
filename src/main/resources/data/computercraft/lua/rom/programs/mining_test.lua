@@ -1,23 +1,21 @@
+local stepCount = 0
+
 print("=========================================")
-print("      STARTING STATIC MINING ROUTE       ")
+print("      KINETIC TURTLE - MINING NODE       ")
 print("=========================================")
+print("Running infinite mining loop. Press Ctrl+T to stop.")
+print("-----------------------------------------")
 
-for i = 1, 5 do
-    print(string.format("Executing progress node: %d/5", i))
+while true do
+    turtle.dig()           -- clear block in front (ignores air)
+    local moved = turtle.forward()
 
-    -- Blindly try to move forward.
-    -- If blocked by Obsidian/Stone, the environment wrapper catches it here!
-    local success = turtle.forward()
-
-    if not success then
-        print("Static warning: Forward movement failed.")
+    if moved then
+        stepCount = stepCount + 1
+        print(string.format("[%d] Moved forward successfully.", stepCount))
     else
-        print("Static status: Moved forward successfully.")
+        print(string.format("[%d] Warning: Movement blocked.", stepCount))
     end
 
-    sleep(1.5)
+    sleep(1.0)
 end
-
-print("=========================================")
-print("      STATIC TEST ROUTE COMPLETED        ")
-print("=========================================")
