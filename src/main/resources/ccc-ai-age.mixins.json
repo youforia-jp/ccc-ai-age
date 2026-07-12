@@ -8,7 +8,10 @@
 		"NeuralTurtleMixin",
 		"NeuralComputerMixin",
 		"TurtleBrainMixin",
-		"ItemStackMixin"
+		"ItemStackMixin",
+		"BlockItemMixin",
+		"TurtleBlockMixin",
+		"ComputerBlockMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
