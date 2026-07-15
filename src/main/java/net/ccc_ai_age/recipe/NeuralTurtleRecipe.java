@@ -32,9 +32,7 @@ public class NeuralTurtleRecipe extends SpecialCraftingRecipe {
 
 			Identifier itemId = Registries.ITEM.getId(stack.getItem());
 			if (itemId.getNamespace().equals("computercraft") && 
-				(itemId.getPath().equals("turtle_advanced") || 
-				 itemId.getPath().equals("turtle_normal") || 
-				 itemId.getPath().equals("computer_advanced") || 
+				(itemId.getPath().equals("computer_advanced") || 
 				 itemId.getPath().equals("computer_normal"))) {
 				if (foundBase) return false;
 				foundBase = true;
@@ -62,9 +60,7 @@ public class NeuralTurtleRecipe extends SpecialCraftingRecipe {
 
 			Identifier itemId = Registries.ITEM.getId(stack.getItem());
 			if (itemId.getNamespace().equals("computercraft") && 
-				(itemId.getPath().equals("turtle_advanced") || 
-				 itemId.getPath().equals("turtle_normal") || 
-				 itemId.getPath().equals("computer_advanced") || 
+				(itemId.getPath().equals("computer_advanced") || 
 				 itemId.getPath().equals("computer_normal"))) {
 				baseStack = stack;
 			} else if (stack.isOf(ModBlocks.BASIC_KINETIC_AI_CORE.asItem()) || 

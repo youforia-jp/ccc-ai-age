@@ -27,15 +27,23 @@ public class CCCAIAge implements ModInitializer {
 
 	public static final dan200.computercraft.api.turtle.TurtleUpgradeSerialiser<net.ccc_ai_age.integration.AITurtleUpgrade> BASIC_UPGRADE_SERIALISER =
 			dan200.computercraft.api.turtle.TurtleUpgradeSerialiser.simpleWithCustomItem(
-					(id, stack) -> new net.ccc_ai_age.integration.AITurtleUpgrade(id, net.ccc_ai_age.api.AITier.BASIC, stack)
+					(id, stack) -> new net.ccc_ai_age.integration.AITurtleUpgrade(id, net.ccc_ai_age.api.AITier.BASIC, stack, false)
 			);
 	public static final dan200.computercraft.api.turtle.TurtleUpgradeSerialiser<net.ccc_ai_age.integration.AITurtleUpgrade> ADVANCED_UPGRADE_SERIALISER =
 			dan200.computercraft.api.turtle.TurtleUpgradeSerialiser.simpleWithCustomItem(
-					(id, stack) -> new net.ccc_ai_age.integration.AITurtleUpgrade(id, net.ccc_ai_age.api.AITier.ADVANCED, stack)
+					(id, stack) -> new net.ccc_ai_age.integration.AITurtleUpgrade(id, net.ccc_ai_age.api.AITier.ADVANCED, stack, false)
 			);
 	public static final dan200.computercraft.api.turtle.TurtleUpgradeSerialiser<net.ccc_ai_age.integration.AITurtleUpgrade> QUANTUM_UPGRADE_SERIALISER =
 			dan200.computercraft.api.turtle.TurtleUpgradeSerialiser.simpleWithCustomItem(
-					(id, stack) -> new net.ccc_ai_age.integration.AITurtleUpgrade(id, net.ccc_ai_age.api.AITier.QUANTUM, stack)
+					(id, stack) -> new net.ccc_ai_age.integration.AITurtleUpgrade(id, net.ccc_ai_age.api.AITier.QUANTUM, stack, false)
+			);
+	public static final dan200.computercraft.api.turtle.TurtleUpgradeSerialiser<net.ccc_ai_age.integration.AITurtleUpgrade> ADVANCED_MODEM_UPGRADE_SERIALISER =
+			dan200.computercraft.api.turtle.TurtleUpgradeSerialiser.simpleWithCustomItem(
+					(id, stack) -> new net.ccc_ai_age.integration.AITurtleUpgrade(id, net.ccc_ai_age.api.AITier.ADVANCED, stack, true)
+			);
+	public static final dan200.computercraft.api.turtle.TurtleUpgradeSerialiser<net.ccc_ai_age.integration.AITurtleUpgrade> QUANTUM_MODEM_UPGRADE_SERIALISER =
+			dan200.computercraft.api.turtle.TurtleUpgradeSerialiser.simpleWithCustomItem(
+					(id, stack) -> new net.ccc_ai_age.integration.AITurtleUpgrade(id, net.ccc_ai_age.api.AITier.QUANTUM, stack, true)
 			);
 
 	public static final net.minecraft.recipe.RecipeSerializer<net.ccc_ai_age.recipe.NeuralTurtleRecipe> NEURAL_TURTLE_RECIPE_SERIALIZER =
@@ -44,6 +52,15 @@ public class CCCAIAge implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		LOGGER.info("[CC:C AI Age] Initializing — Phase 1 & 2 (Kinetic AI Core + CC:T peripheral)");
+
+		// Load configuration FIRST — OllamaSetupHandler and other systems read it (v0.38)
+		ModConfig.load();
+
+		// Register blocks (and their BlockItems)
+		ModBlocks.register();
+
+		// Register block entity types (must come after blocks are registered)
+		ModBlockEntities.register();
 
 		// Register custom recipes (v0.41)
 		net.minecraft.registry.Registry.register(
@@ -73,27 +90,29 @@ public class CCCAIAge implements ModInitializer {
 					CCCAIAge.id("quantum_kinetic_ai_core_upgrade"),
 					QUANTUM_UPGRADE_SERIALISER
 			);
+			net.minecraft.registry.Registry.register(
+					registry,
+					CCCAIAge.id("advanced_kinetic_ai_core_modem_upgrade"),
+					ADVANCED_MODEM_UPGRADE_SERIALISER
+			);
+			net.minecraft.registry.Registry.register(
+					registry,
+					CCCAIAge.id("quantum_kinetic_ai_core_modem_upgrade"),
+					QUANTUM_MODEM_UPGRADE_SERIALISER
+			);
+		} else {
+			// CC:T was not loaded or its registry is unavailable — turtle upgrades will not be registered
+			LOGGER.warn("[CC:C AI Age] CC:T TurtleUpgradeSerialiser registry not found — turtle upgrades will not be registered. Is CC: Tweaked installed?");
 		}
-
-		// Register blocks (and their BlockItems)
-		ModBlocks.register();
-
-		// Register block entity types (must come after blocks are registered)
-		ModBlockEntities.register();
 
 		// Register the KineticAICoreBlockEntity's peripheral wrapper as an IPeripheral provider (v0.34)
 		dan200.computercraft.api.peripheral.PeripheralLookup.get().registerForBlockEntity(
 				(blockEntity, direction) -> blockEntity.getPeripheral(),
 				ModBlockEntities.KINETIC_AI_CORE
 		);
-		
-		// Load configuration (v0.38)
-		ModConfig.load();
-		
+
 		// Register creative mode tabs
 		ModItemGroups.register();
-
-
 
 		// Run local Ollama background check and model pre-pull (v0.33)
 		OllamaSetupHandler.initializeAsync();

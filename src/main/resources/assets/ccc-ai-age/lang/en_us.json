@@ -1,13 +1,20 @@
 {
-  "block.ccc-ai-age.basic_kinetic_ai_core": "Basic Kinetic AI Core",
-  "block.ccc-ai-age.advanced_kinetic_ai_core": "Advanced Kinetic AI Core",
-  "block.ccc-ai-age.quantum_kinetic_ai_core": "Quantum Kinetic AI Core",
+  "block.ccc-ai-age.basic_kinetic_ai_core": "Basic AI Core",
+  "block.ccc-ai-age.advanced_kinetic_ai_core": "Advanced AI Core",
+  "block.ccc-ai-age.quantum_kinetic_ai_core": "Quantum AI Core",
   "itemGroup.ccc-ai-age.main": "CC:C AI Age",
-  "turtle_upgrade.ccc-ai-age.basic_kinetic_ai_core_upgrade.name": "Basic Kinetic AI Upgrade",
-  "turtle_upgrade.ccc-ai-age.advanced_kinetic_ai_core_upgrade.name": "Advanced Kinetic AI Upgrade",
-  "turtle_upgrade.ccc-ai-age.quantum_kinetic_ai_core_upgrade.name": "Quantum Kinetic AI Upgrade",
-  "turtle_upgrade.ccc-ai-age.basic_kinetic_ai_core_upgrade.adjective": "Basic Kinetic AI",
-  "turtle_upgrade.ccc-ai-age.advanced_kinetic_ai_core_upgrade.adjective": "Advanced Kinetic AI",
-  "turtle_upgrade.ccc-ai-age.quantum_kinetic_ai_core_upgrade.adjective": "Quantum Kinetic AI",
-  "item.ccc-ai-age.neural_turtle.name": "Neural Advanced Turtle"
+  "turtle_upgrade.ccc-ai-age.basic_kinetic_ai_core_upgrade.name": "Basic AI Upgrade",
+  "turtle_upgrade.ccc-ai-age.advanced_kinetic_ai_core_upgrade.name": "Advanced AI Upgrade",
+  "turtle_upgrade.ccc-ai-age.quantum_kinetic_ai_core_upgrade.name": "Quantum AI Upgrade",
+  "turtle_upgrade.ccc-ai-age.basic_kinetic_ai_core_upgrade.adjective": "Basic AI",
+  "turtle_upgrade.ccc-ai-age.advanced_kinetic_ai_core_upgrade.adjective": "Advanced AI",
+  "turtle_upgrade.ccc-ai-age.quantum_kinetic_ai_core_upgrade.adjective": "Quantum AI",
+  "item.ccc-ai-age.neural_computer.name": "AI Powered Computer",
+  "item.ccc-ai-age.advanced_kinetic_ai_core_modem": "Advanced AI Core (Wireless)",
+  "item.ccc-ai-age.quantum_kinetic_ai_core_modem": "Quantum AI Core (Wireless)",
+  "turtle_upgrade.ccc-ai-age.advanced_kinetic_ai_core_modem_upgrade.name": "Advanced Wireless AI Upgrade",
+  "turtle_upgrade.ccc-ai-age.quantum_kinetic_ai_core_modem_upgrade.name": "Quantum Wireless AI Upgrade",
+  "turtle_upgrade.ccc-ai-age.advanced_kinetic_ai_core_modem_upgrade.adjective": "Advanced Wireless AI",
+  "turtle_upgrade.ccc-ai-age.quantum_kinetic_ai_core_modem_upgrade.adjective": "Quantum Wireless AI"
 }
+

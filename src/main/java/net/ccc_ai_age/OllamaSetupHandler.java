@@ -56,9 +56,9 @@ public class OllamaSetupHandler {
 				CCCAIAge.LOGGER.info("[CC:C AI Age] Ollama is online. Ensuring all 5 model tiers are pulled...");
 				String[] targetModels = {"qwen:0.5b", "qwen3.5:4b", "qwen3:8b", "qwen3.5:9b", "qwen2.5:14b"};
 				for (String modelName : targetModels) {
-					CompletableFuture.runAsync(() -> {
-						pullModel(modelName);
-					});
+					// Capture into a final local to ensure the correct value is closed over in the lambda.
+					final String capturedModel = modelName;
+					CompletableFuture.runAsync(() -> pullModel(capturedModel));
 				}
 				CCCAIAge.LOGGER.info("[CC:C AI Age] Ollama model check tasks scheduled.");
 			} catch (Exception e) {
@@ -86,6 +86,7 @@ public class OllamaSetupHandler {
 			HttpRequest request = HttpRequest.newBuilder()
 					.uri(URI.create("http://localhost:11434/api/pull"))
 					.header("Content-Type", "application/json")
+					.timeout(Duration.ofMinutes(10)) // Guard against Ollama hanging during a large model pull
 					.POST(HttpRequest.BodyPublishers.ofString(jsonPayload))
 					.build();
 			HttpResponse<String> response = CLIENT.send(request, HttpResponse.BodyHandlers.ofString());

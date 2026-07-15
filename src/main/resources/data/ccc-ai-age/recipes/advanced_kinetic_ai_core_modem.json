@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "ccc-ai-age:advanced_kinetic_ai_core"
+    },
+    {
+      "item": "computercraft:wireless_modem_normal"
+    }
+  ],
+  "result": {
+    "item": "ccc-ai-age:advanced_kinetic_ai_core_modem",
+    "count": 1
+  }
+}

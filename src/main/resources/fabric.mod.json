@@ -3,7 +3,7 @@
 	"id": "ccc-ai-age",
 	"version": "${version}",
 	"name": "CC:C AI Age",
-	"description": "Integrates CC: Tweaked computers with Create's kinetic network via an AI-powered peripheral (Kinetic AI Core), bridging Lua scripting with a local Ollama LLM backend.",
+	"description": "Integrates CC: Tweaked computers with a local Ollama AI backend via the AI Core peripheral, enabling Lua-controlled AI from computers and turtles.",
 	"authors": [
 		"juanp"
 	],

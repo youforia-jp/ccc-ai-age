@@ -1,15 +1,15 @@
--- Interactive 5-Tier AI Core Interface Matrix
+-- Interactive AI Core Interface
 term.clear()
 term.setCursorPos(1,1)
 
 local core = peripheral.find("ai_core")
 if not core then
-    print("Error: No Kinetic AI Core peripheral detected adjacent to this computer.")
+    print("Error: No AI Core peripheral detected. Attach an AI Core block adjacent to this computer, or equip an AI Core turtle upgrade.")
     return
 end
 
 print("=========================================")
-print("      KINETIC AI MATRIX TERMINAL         ")
+print("          AI CORE TERMINAL               ")
 print("=========================================")
 print("")
 print("Select your target GPU performance profile:")
@@ -31,10 +31,10 @@ elseif input == "3" then selectedModel = "qwen3:8b"
 elseif input == "5" then selectedModel = "qwen2.5:14b"
 end
 
-print("\nConnecting to GPU runtime node...")
+print("\nConnecting to AI runtime...")
 sleep(0.5)
-print("The model is ready and functional. Go ahead and ask something!")
-print("(Type 'exit' or 'quit' to close the matrix loop)")
+print("The model is ready. Go ahead and ask something!")
+print("(Type 'exit' or 'quit' to close)")
 print("-----------------------------------------")
 
 while true do
@@ -42,7 +42,7 @@ while true do
     local prompt = read()
     
     if prompt == "exit" or prompt == "quit" or prompt == "" then
-        print("\nDisconnecting from core node. Goodbye.")
+        print("\nDisconnecting from AI core. Goodbye.")
         break
     end
     
@@ -50,7 +50,7 @@ while true do
     local ok, reqId = pcall(core.streamTelemetry, prompt, selectedModel)
     
     if not ok then
-        print("\n[Casing Error]: " .. tostring(reqId))
+        print("\n[Error]: " .. tostring(reqId))
     else
         while true do
             local event, id, token, done = os.pullEvent("ai_token")
@@ -65,4 +65,4 @@ while true do
             end
         end
     end
-end
+end

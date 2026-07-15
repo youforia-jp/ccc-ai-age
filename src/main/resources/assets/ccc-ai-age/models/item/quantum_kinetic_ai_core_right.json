@@ -1,3 +1,7 @@
 {
-  "parent": "ccc-ai-age:block/quantum_kinetic_ai_core"
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "ccc-ai-age:block/quantum_kinetic_ai_core"
+  }
 }
+

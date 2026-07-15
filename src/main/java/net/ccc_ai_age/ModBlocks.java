@@ -73,6 +73,14 @@ public final class ModBlocks {
 			AITier.QUANTUM
 	);
 
+	// Modems (Items only)
+	public static final Item ADVANCED_KINETIC_AI_CORE_MODEM = Registry.register(Registries.ITEM, 
+			new net.minecraft.util.Identifier(CCCAIAge.MOD_ID, "advanced_kinetic_ai_core_modem"), 
+			new Item(new FabricItemSettings()));
+	public static final Item QUANTUM_KINETIC_AI_CORE_MODEM = Registry.register(Registries.ITEM, 
+			new net.minecraft.util.Identifier(CCCAIAge.MOD_ID, "quantum_kinetic_ai_core_modem"), 
+			new Item(new FabricItemSettings()));
+
 	// -------------------------------------------------------------------------
 	// Registration
 	// -------------------------------------------------------------------------

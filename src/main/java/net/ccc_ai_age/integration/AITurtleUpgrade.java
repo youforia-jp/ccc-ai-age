@@ -23,10 +23,21 @@ public class AITurtleUpgrade implements ITurtleUpgrade {
 	private final AITier tier;
 	private final ItemStack craftItem;
 
-	public AITurtleUpgrade(Identifier id, AITier tier, ItemStack craftItem) {
+	private final boolean hasModem;
+
+	public AITurtleUpgrade(Identifier id, AITier tier, ItemStack craftItem, boolean hasModem) {
 		this.id = id;
 		this.tier = tier;
 		this.craftItem = craftItem;
+		this.hasModem = hasModem;
+	}
+
+	public AITier getTier() {
+		return tier;
+	}
+
+	public boolean hasModem() {
+		return hasModem;
 	}
 
 	@Override
@@ -57,5 +68,19 @@ public class AITurtleUpgrade implements ITurtleUpgrade {
 	@Override
 	public @Nullable IPeripheral createPeripheral(@NotNull ITurtleAccess turtle, @NotNull TurtleSide side) {
 		return new KineticAICoreBlockEntity.KineticAICorePeripheral(this.tier);
+	}
+
+	public static final net.minecraft.server.world.ChunkTicketType<net.minecraft.util.math.ChunkPos> KINETIC_AI_TICKET =
+			net.minecraft.server.world.ChunkTicketType.create("kinetic_ai", java.util.Comparator.comparingLong(net.minecraft.util.math.ChunkPos::toLong), 100);
+
+	@Override
+	public void update(@NotNull ITurtleAccess turtle, @NotNull TurtleSide side) {
+		net.minecraft.world.World world = turtle.getLevel();
+		if (world != null && !world.isClient() && world instanceof net.minecraft.server.world.ServerWorld) {
+			net.minecraft.server.world.ServerWorld serverWorld = (net.minecraft.server.world.ServerWorld) world;
+			net.minecraft.util.math.BlockPos pos = turtle.getPosition();
+			net.minecraft.util.math.ChunkPos chunkPos = new net.minecraft.util.math.ChunkPos(pos);
+			serverWorld.getChunkManager().addTicket(KINETIC_AI_TICKET, chunkPos, 31, chunkPos);
+		}
 	}
 }

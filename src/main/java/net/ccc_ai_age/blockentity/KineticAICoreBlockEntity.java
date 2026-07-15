@@ -82,6 +82,14 @@ public class KineticAICoreBlockEntity extends BlockEntity {
 		return AITier.BASIC; // fallback
 	}
 
+	public void tick(net.minecraft.world.World world1, BlockPos pos1, BlockState state1) {
+		if (world1 != null && !world1.isClient() && world1 instanceof net.minecraft.server.world.ServerWorld) {
+			net.minecraft.server.world.ServerWorld serverWorld = (net.minecraft.server.world.ServerWorld) world1;
+			net.minecraft.util.math.ChunkPos chunkPos = new net.minecraft.util.math.ChunkPos(pos1);
+			serverWorld.getChunkManager().addTicket(net.ccc_ai_age.integration.AITurtleUpgrade.KINETIC_AI_TICKET, chunkPos, 31, chunkPos);
+		}
+	}
+
 	@Override
 	public void markRemoved() {
 		super.markRemoved();

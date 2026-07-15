@@ -1,25 +1,23 @@
 # CC:C AI Age
 
-> **Build `0.50`** — Phase 5 fully complete: Kinetic AI Core block, CC:T peripheral, Ollama Link, Neural Hardware Integration (NBT/Recipe upgrades), Dynamic Block Entity Persistence, Config welcome screen, and environment test ROM utilities.
+> **Build `0.55`** — Phase 6 fully complete: Combo Wireless Modems, proper CC:T turtle upgrade integration (native naming, slots, and left/right rendering), and modernized crafting hooks.
 
 A Minecraft 1.20.1 Fabric mod that bridges **CC: Tweaked** computers with **Create**'s theme through an AI-powered peripheral, connecting Lua scripting with a local [Ollama](https://ollama.com) LLM backend.
 
 ---
 
-## ✨ Features (v0.50)
+## ✨ Features (v0.55)
 
 | Feature | Status | Description |
 |---|---|---|
-| **Custom Creative Tab** | ✅ Implemented | Mod items are available under the CC:C AI Age creative tab with the exception of neural items (must be crafted by combining AI chip with Computer / Turtle). |
+| **Custom Creative Tab** | ✅ Implemented | Mod items are available under the CC:C AI Age creative tab, including pre-assembled AI turtles. |
 | **3-Tier AI Progression** | ✅ Implemented | Progression system featuring Basic (uses `qwen:0.5b`), Advanced (default configurations), and Quantum cores. |
-| **Decoupled Kinetic Network** | ✅ Implemented | Blocks are self-powered, resolving previous kinetic constraints and RPM stress requirements for a clean architecture. |
-| **Neural Hardware Upgrades** | ✅ Implemented | Upgrades standard computers/turtles with any AI Core block in a crafting grid, writing `NeuralAI` and `NeuralTier` NBT tags. |
-| **Name Localization** | ✅ Implemented | Prepends `"Neural "` to the display name of upgraded item stacks dynamically. |
-| **Virtual Peripheral Hooking** | ✅ Implemented | Registers a virtual `ai_core` peripheral on the `BOTTOM` virtual side for Neural machines. Physical slots remain 100% open. |
-| **Block Placement & Break Persistence** | ✅ Implemented | Mixins preserve custom `NeuralAI` NBT tags across block placement and mining/breaking lifecycle events. |
-| **Ollama Async Streaming** | ✅ Implemented | Calls local Ollama `http://localhost:11434/api/generate` asynchronously and streams NDJSON responses. |
-| **Lua Script Injection** | ✅ Implemented | Mounts read-only directory `"ai"` on the root of any connected computer. |
-| **Interactive Welcome Screen** | ✅ Implemented | Shows an in-game welcome screen on world load, with an "Open Config" shortcut to open the configuration JSON. |
+| **Combo Wireless Modems** | ✅ Implemented | Advanced/Quantum Cores can be crafted with Wireless Modems. Equipping this combo item automatically mounts a CC:T wireless modem to the turtle's invisible `BOTTOM` slot. |
+| **Native CC:T Integration** | ✅ Implemented | Turtles use CC:T's native upgrade system (using standard `ITurtleUpgrade`), inheriting proper dynamic naming (e.g. "Mining Advanced AI Turtle") and side-rendering. |
+| **Stationary Neural Upgrades** | ✅ Implemented | Standard computers can be upgraded with AI Cores in a crafting grid, converting them into "AI Powered Computers" dynamically. |
+| **Ollama Async Streaming** | ✅ Implemented | Calls local Ollama `http://localhost:11434/api/generate` asynchronously and streams NDJSON responses directly to Lua `ai_token` events. |
+| **Lua Script Injection** | ✅ Implemented | Mounts a read-only directory `"ai"` on the root of any connected computer, providing out-of-the-box scripts. |
+| **Interactive Welcome Screen** | ✅ Implemented | Shows an in-game welcome screen on world load with shortcuts to configuring local model sizes. |
 
 ---
 

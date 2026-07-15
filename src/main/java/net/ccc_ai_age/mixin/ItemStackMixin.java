@@ -14,7 +14,7 @@ public class ItemStackMixin {
 	private void onGetName(CallbackInfoReturnable<Text> cir) {
 		ItemStack stack = (ItemStack) (Object) this;
 		if (stack.hasNbt() && stack.getNbt().getBoolean("NeuralAI")) {
-			cir.setReturnValue(Text.translatable("item.ccc-ai-age.neural_turtle.name"));
+			cir.setReturnValue(Text.translatable("item.ccc-ai-age.neural_computer.name"));
 		}
 	}
 }

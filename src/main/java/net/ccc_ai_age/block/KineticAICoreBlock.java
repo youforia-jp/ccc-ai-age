@@ -39,4 +39,16 @@ public class KineticAICoreBlock extends BlockWithEntity {
 	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
 		return new KineticAICoreBlockEntity(pos, state);
 	}
+
+	@Override
+	public <T extends BlockEntity> net.minecraft.block.entity.BlockEntityTicker<T> getTicker(net.minecraft.world.World world, BlockState state, net.minecraft.block.entity.BlockEntityType<T> type) {
+		// Only register the ticker on the server side — chunk loading is a server-side operation.
+		// Returning null on the client avoids a redundant client tick.
+		if (world.isClient()) return null;
+		return checkType(type, ModBlockEntities.KINETIC_AI_CORE, (world1, pos, state1, blockEntity) -> {
+			if (blockEntity instanceof KineticAICoreBlockEntity) {
+				((KineticAICoreBlockEntity) blockEntity).tick(world1, pos, state1);
+			}
+		});
+	}
 }

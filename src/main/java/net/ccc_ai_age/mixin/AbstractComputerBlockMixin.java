@@ -26,7 +26,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class AbstractComputerBlockMixin {
 
 	@Inject(method = "onPlaced", at = @At("TAIL"))
-	private void onPlaced(World world, PlayerEntity player, BlockPos pos, BlockState state, BlockEntity blockEntity, ItemStack stack, CallbackInfo ci) {
+	private void onPlaced(World world, BlockPos pos, BlockState state, net.minecraft.entity.LivingEntity placer, ItemStack stack, CallbackInfo ci) {
+		BlockEntity blockEntity = world.getBlockEntity(pos);
 		if (blockEntity instanceof NeuralComputerAccess && stack.hasNbt()) {
 			NbtCompound nbt = stack.getNbt();
 
